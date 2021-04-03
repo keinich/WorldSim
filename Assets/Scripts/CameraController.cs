@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour {
 
+  public Terrain terrain;
+
   public GameObject subRig;
 
   public Transform cameraTransform;
@@ -56,6 +58,7 @@ public class CameraController : MonoBehaviour {
 
       if (plane.Raycast(ray, out entry)) {
         dragStartPosition = ray.GetPoint(entry);
+        dragStartPosition.y = 0;
       }
     }
 
@@ -67,8 +70,14 @@ public class CameraController : MonoBehaviour {
 
       if (plane.Raycast(ray, out entry)) {
         dragCurrentPosition = ray.GetPoint(entry);
+        dragCurrentPosition.y = 0;
 
         newPosition = transform.position + dragStartPosition - dragCurrentPosition;
+        //print($"startposition.y = {dragStartPosition.y}");
+        //print($"dragCurrentPosition.y = {dragCurrentPosition.y}");
+
+        newPosition.y = terrain.SampleHeight(newPosition);
+        print($"newPosition.y = {newPosition.y}");
       }
     }
 
