@@ -310,10 +310,10 @@ MonoBehaviour:
   autoUpdate: 1
   normalizeMode: 0
   editorPreviewLOD: 0
-  noiseScale: 32.9
-  heightScale: 0.059
+  noiseScale: 36.5
+  heightScale: 0.673
   octaves: 4
-  persistance: 0.145
+  persistance: 0.149
   lacunarity: 3.27
   seed: 1
   offset: {x: 0, y: 0}

@@ -46,5 +46,7 @@ public class TerrainGenerator : MonoBehaviour {
       }
     }
     terrain.terrainData.SetHeights(0, 0, betterHeightMap);
+    int[,] d = terrain.terrainData.GetDetailLayer(0, 0, 100, 100, 0);
+    int x = 0;
   }
 }
