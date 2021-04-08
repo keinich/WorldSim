@@ -118,6 +118,9 @@ public class TerrainGenerator : MonoBehaviour {
   }
 
   public void ContructMesh() {
+
+    ConstructTerrain();
+
     Vector3[] verts = new Vector3[mapSize * mapSize];
     int[] triangles = new int[(mapSize - 1) * (mapSize - 1) * 6];
     int t = 0;
@@ -166,6 +169,25 @@ public class TerrainGenerator : MonoBehaviour {
     meshRenderer.sharedMaterial = material;
 
     material.SetFloat("_MaxHeight", elevationScale);
+  }
+
+  private void ConstructTerrain() {
+    Terrain terrain = FindObjectOfType<Terrain>();
+    terrain.terrainData.heightmapResolution = mapSize;
+    float[,] heightMap = GetHeightMap(map);
+    terrain.terrainData.SetHeights(0, 0, heightMap);
+  }
+
+  private float[,] GetHeightMap(float[] map) {
+    int s = (int)Mathf.Sqrt(map.Length);
+    float[,] result = new float[s, s];
+    for (int i = 0; i < s * s; i++) {
+      int x = i % s;
+      int y = i / s;
+      result[x, y] = map[i] * 0.1f;
+    }
+
+    return result;
   }
 
   void AssignMeshComponents() {
