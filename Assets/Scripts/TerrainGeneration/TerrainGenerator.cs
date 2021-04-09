@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 public class TerrainGenerator : MonoBehaviour {
@@ -37,9 +39,45 @@ public class TerrainGenerator : MonoBehaviour {
   MeshRenderer meshRenderer;
   MeshFilter meshFilter;
 
+  static HeightmapGenerator heightmapGenerator;
+
+  Queue<TerrainThreadInfo<TerrainMapData>> mapDataThreadInfoQueue = new Queue<TerrainThreadInfo<TerrainMapData>>();
+  Queue<TerrainThreadInfo<MeshData>> meshDataThreadInfoQueue = new Queue<TerrainThreadInfo<MeshData>>();
+
+  private void Start() {
+    heightmapGenerator = FindObjectOfType<HeightmapGenerator>();
+    if (!heightmapGenerator) {
+      Debug.Log("No HeightmapGenerator!");
+    }
+  }
+
+  void Update() {
+    if (mapDataThreadInfoQueue.Count > 0) {
+      for (int i = 0; i < mapDataThreadInfoQueue.Count; i++) {
+        TerrainThreadInfo<TerrainMapData> threadInfo = mapDataThreadInfoQueue.Dequeue();
+        threadInfo.callback(threadInfo.parameter);
+      }
+    }
+    if (meshDataThreadInfoQueue.Count > 0) {
+      for (int i = 0; i < meshDataThreadInfoQueue.Count; i++) {
+        TerrainThreadInfo<MeshData> threadInfo = meshDataThreadInfoQueue.Dequeue();
+        threadInfo.callback(threadInfo.parameter);
+      }
+    }
+  }
+
   public void GenerateHeightMap() {
     mapSizeWithBorder = mapSize + erosionBrushRadius * 2;
     map = FindObjectOfType<HeightmapGenerator>().GenerateHeightMap(mapSizeWithBorder);
+  }
+
+  public TerrainMapData GenerateTerrainData(Vector2 centre) {
+    mapSizeWithBorder = mapSize + erosionBrushRadius * 2;
+    if (!heightmapGenerator) {
+      return new TerrainMapData();
+    }
+    float[] m = heightmapGenerator.GenerateHeightMap(mapSizeWithBorder);
+    return new TerrainMapData(GetHeightMap(m));
   }
 
   public void Erode() {
@@ -76,8 +114,8 @@ public class TerrainGenerator : MonoBehaviour {
     // Generate random indices for droplet placement
     int[] randomIndices = new int[numErosionIterations];
     for (int i = 0; i < numErosionIterations; i++) {
-      int randomX = Random.Range(erosionBrushRadius, mapSize + erosionBrushRadius);
-      int randomY = Random.Range(erosionBrushRadius, mapSize + erosionBrushRadius);
+      int randomX = UnityEngine.Random.Range(erosionBrushRadius, mapSize + erosionBrushRadius);
+      int randomY = UnityEngine.Random.Range(erosionBrushRadius, mapSize + erosionBrushRadius);
       randomIndices[i] = randomY * mapSize + randomX;
     }
 
@@ -119,7 +157,7 @@ public class TerrainGenerator : MonoBehaviour {
 
   public void ContructMesh() {
 
-    ConstructTerrain();
+    //ConstructTerrain();
 
     Vector3[] verts = new Vector3[mapSize * mapSize];
     int[] triangles = new int[(mapSize - 1) * (mapSize - 1) * 6];
@@ -171,6 +209,37 @@ public class TerrainGenerator : MonoBehaviour {
     material.SetFloat("_MaxHeight", elevationScale);
   }
 
+  public void RequestTerrainData(Vector2 centre, Action<TerrainMapData> callback) {
+    ThreadStart threadStart = delegate {
+      TerrainDataThread(centre, callback);
+    };
+
+    new Thread(threadStart).Start();
+  }
+
+  void TerrainDataThread(Vector2 centre, Action<TerrainMapData> callback) {
+    TerrainMapData terrainData = GenerateTerrainData(centre);
+    lock (mapDataThreadInfoQueue) {
+      mapDataThreadInfoQueue.Enqueue(new TerrainThreadInfo<TerrainMapData>(callback, terrainData));
+    }
+  }
+
+  public void RequestMeshData(TerrainMapData mapData, int lod, Action<MeshData> callback) {
+    Debug.Log("Requesting Mesh Data");
+    ThreadStart threadStart = delegate {
+      MeshDataThread(mapData, lod, callback);
+    };
+
+    new Thread(threadStart).Start();
+  }
+
+  void MeshDataThread(TerrainMapData mapData, int lod, Action<MeshData> callback) {
+    //MeshData meshData = TerrainMeshGenerator.ContructMesh();
+    //lock (meshDataThreadInfoQueue) {
+    //  meshDataThreadInfoQueue.Enqueue(new TerrainThreadInfo<MeshData>(callback, meshData));
+    //}
+  }
+
   private void ConstructTerrain() {
     Terrain terrain = FindObjectOfType<Terrain>();
     terrain.terrainData.heightmapResolution = mapSize;
@@ -212,4 +281,24 @@ public class TerrainGenerator : MonoBehaviour {
     meshRenderer = meshHolder.GetComponent<MeshRenderer>();
     meshFilter = meshHolder.GetComponent<MeshFilter>();
   }
+
+  struct TerrainThreadInfo<T> {
+    public readonly Action<T> callback;
+    public readonly T parameter;
+
+    public TerrainThreadInfo(Action<T> callback, T parameter) {
+      this.callback = callback;
+      this.parameter = parameter;
+    }
+  }
+
+  public struct TerrainMapData {
+    public readonly float[,] heightMap;
+
+    public TerrainMapData(float[,] heightMap) {
+      this.heightMap = heightMap;
+    }
+
+  }
+
 }
