@@ -26,6 +26,7 @@ public class TerrainLod : MonoBehaviour
 
   private void Start() {
     terrainGenerator = FindObjectOfType<TerrainGenerator>();
+    terrainGenerator.CreateTerrain();
 
     maxViewDist = detailLevels[detailLevels.Length - 1].visibleDistanceThreshold;
     chunkSize = MapGenerator.mapChunkSize - 1;
@@ -110,7 +111,7 @@ public class TerrainLod : MonoBehaviour
         lodMeshes[i] = new LODMesh(detailLevels[i].lod, UpdateTerrainChunk);
       }
 
-      terrainGenerator.RequestTerrainData(position, OnTerrainDataReceived);
+      terrainGenerator.RequestTerrainData(coord, size, OnTerrainDataReceived);
     }
 
     void OnTerrainDataReceived(TerrainGenerator.TerrainMapData terrainData) {

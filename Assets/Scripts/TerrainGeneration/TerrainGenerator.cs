@@ -49,6 +49,12 @@ public class TerrainGenerator : MonoBehaviour {
     if (!heightmapGenerator) {
       Debug.Log("No HeightmapGenerator!");
     }
+    CreateTerrain();
+  }
+
+  public void CreateTerrain() {
+    GenerateHeightMap();
+    Erode();
   }
 
   void Update() {
@@ -71,13 +77,18 @@ public class TerrainGenerator : MonoBehaviour {
     map = FindObjectOfType<HeightmapGenerator>().GenerateHeightMap(mapSizeWithBorder);
   }
 
-  public TerrainMapData GenerateTerrainData(Vector2 centre) {
-    mapSizeWithBorder = mapSize + erosionBrushRadius * 2;
+  public TerrainMapData GenerateTerrainData(Vector2 chunkCoord, int chunkSize) {
     if (!heightmapGenerator) {
       return new TerrainMapData();
     }
-    float[] m = heightmapGenerator.GenerateHeightMap(mapSizeWithBorder);
-    return new TerrainMapData(GetHeightMap(m));
+    float[,] heightMap = GetHeightMap(map);
+    float[,] chunkHeightMap = GetChunkHeightMap(heightMap, chunkCoord, chunkSize);
+    return new TerrainMapData(chunkHeightMap);
+  }
+
+  public float[,] GetChunkHeightMap(float[,] heightMap, Vector2 chunkCoord, int chunkSize) {
+    float[,] result = new float[chunkSize + 3, chunkSize + 3];
+    return result;
   }
 
   public void Erode() {
@@ -209,23 +220,23 @@ public class TerrainGenerator : MonoBehaviour {
     material.SetFloat("_MaxHeight", elevationScale);
   }
 
-  public void RequestTerrainData(Vector2 centre, Action<TerrainMapData> callback) {
+  public void RequestTerrainData(Vector2 chunkCoord, int chunkSize, Action<TerrainMapData> callback) {
     ThreadStart threadStart = delegate {
-      TerrainDataThread(centre, callback);
+      TerrainDataThread(chunkCoord, chunkSize, callback);
     };
 
     new Thread(threadStart).Start();
   }
 
-  void TerrainDataThread(Vector2 centre, Action<TerrainMapData> callback) {
-    TerrainMapData terrainData = GenerateTerrainData(centre);
+  void TerrainDataThread(Vector2 chunkCoord, int chunkSize, Action<TerrainMapData> callback) {
+    TerrainMapData terrainData = GenerateTerrainData(chunkCoord, chunkSize);
     lock (mapDataThreadInfoQueue) {
       mapDataThreadInfoQueue.Enqueue(new TerrainThreadInfo<TerrainMapData>(callback, terrainData));
     }
   }
 
   public void RequestMeshData(TerrainMapData mapData, int lod, Action<MeshData> callback) {
-    Debug.Log("Requesting Mesh Data");
+    //Debug.Log("Requesting Mesh Data");
     ThreadStart threadStart = delegate {
       MeshDataThread(mapData, lod, callback);
     };
@@ -234,10 +245,10 @@ public class TerrainGenerator : MonoBehaviour {
   }
 
   void MeshDataThread(TerrainMapData mapData, int lod, Action<MeshData> callback) {
-    //MeshData meshData = TerrainMeshGenerator.ContructMesh();
-    //lock (meshDataThreadInfoQueue) {
-    //  meshDataThreadInfoQueue.Enqueue(new TerrainThreadInfo<MeshData>(callback, meshData));
-    //}
+    MeshData meshData = MeshGenerator.GenerateTerrainMesh(mapData.heightMap, 1, new AnimationCurve(), lod);
+    lock (meshDataThreadInfoQueue) {
+      meshDataThreadInfoQueue.Enqueue(new TerrainThreadInfo<MeshData>(callback, meshData));
+    }
   }
 
   private void ConstructTerrain() {
