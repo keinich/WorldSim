@@ -88,6 +88,19 @@ public class TerrainGenerator : MonoBehaviour {
 
   public float[,] GetChunkHeightMap(float[,] heightMap, Vector2 chunkCoord, int chunkSize) {
     float[,] result = new float[chunkSize + 3, chunkSize + 3];
+    //return result;
+    int startX = (int)chunkCoord.x * chunkSize;
+    int startY = -(int)chunkCoord.y * chunkSize;
+    for (int x = 0; x < chunkSize + 3; x++) {
+      for (int y = 0; y < chunkSize + 3; y++) {
+        int heightX = startX + x;
+        int heightY = startY + y;
+        if (heightX < 0 || heightX >= heightMap.GetLength(0) || heightY < 0 || heightY >= heightMap.GetLength(1)) {
+          continue;
+        }
+        result[x, y] = heightMap[heightX, heightY] * 10;
+      }
+    }
     return result;
   }
 
@@ -245,7 +258,7 @@ public class TerrainGenerator : MonoBehaviour {
   }
 
   void MeshDataThread(TerrainMapData mapData, int lod, Action<MeshData> callback) {
-    MeshData meshData = MeshGenerator.GenerateTerrainMesh(mapData.heightMap, 1, new AnimationCurve(), lod);
+    MeshData meshData = MeshGenerator.GenerateTerrainMesh(mapData.heightMap, elevationScale, new AnimationCurve(), lod);
     lock (meshDataThreadInfoQueue) {
       meshDataThreadInfoQueue.Enqueue(new TerrainThreadInfo<MeshData>(callback, meshData));
     }
