@@ -2,7 +2,22 @@ fileFormatVersion: 2
 guid: 4a4aba059e734de428e1da6eb1bc27ec
 ShaderImporter:
   externalObjects: {}
-  defaultTextures: []
+  defaultTextures:
+  - _Control: {instanceID: 0}
+  - _Splat3: {instanceID: 0}
+  - _Splat2: {instanceID: 0}
+  - _Splat1: {instanceID: 0}
+  - _Splat0: {instanceID: 0}
+  - _Normal3: {instanceID: 0}
+  - _Normal2: {instanceID: 0}
+  - _Normal1: {instanceID: 0}
+  - _Normal0: {instanceID: 0}
+  - _Mask3: {instanceID: 0}
+  - _Mask2: {instanceID: 0}
+  - _Mask1: {instanceID: 0}
+  - _Mask0: {instanceID: 0}
+  - _MainTex: {instanceID: 0}
+  - _TerrainHolesTexture: {instanceID: 0}
   nonModifiableTextures: []
   preprocessorOverride: 0
   userData: 

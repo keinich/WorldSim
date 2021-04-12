@@ -98,7 +98,7 @@ public class TerrainGenerator : MonoBehaviour {
         if (heightX < 0 || heightX >= heightMap.GetLength(0) || heightY < 0 || heightY >= heightMap.GetLength(1)) {
           continue;
         }
-        result[x, y] = heightMap[heightX, heightY] * 10;
+        result[x, y] = heightMap[heightX, heightY] * 10.0f;
       }
     }
     return result;
@@ -181,7 +181,7 @@ public class TerrainGenerator : MonoBehaviour {
 
   public void ContructMesh() {
 
-    //ConstructTerrain();
+    ConstructTerrain();
 
     Vector3[] verts = new Vector3[mapSize * mapSize];
     int[] triangles = new int[(mapSize - 1) * (mapSize - 1) * 6];
@@ -267,8 +267,20 @@ public class TerrainGenerator : MonoBehaviour {
   private void ConstructTerrain() {
     Terrain terrain = FindObjectOfType<Terrain>();
     terrain.terrainData.heightmapResolution = mapSize;
-    float[,] heightMap = GetHeightMap(map);
+    float[,] heightMap = GetTerrainHeightMap(map);
     terrain.terrainData.SetHeights(0, 0, heightMap);
+  }
+
+  private float[,] GetTerrainHeightMap(float[] map) {
+    int s = (int)Mathf.Sqrt(map.Length);
+    float[,] result = new float[s, s];
+    for (int i = 0; i < s * s; i++) {
+      int x = i % s;
+      int y = i / s;
+      result[x, y] = map[i] * 0.2f;
+    }
+
+    return result;
   }
 
   private float[,] GetHeightMap(float[] map) {

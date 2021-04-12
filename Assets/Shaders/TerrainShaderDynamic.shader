@@ -2,6 +2,10 @@ Shader "Custom/TerrainDynamic"
 {
   Properties
   {
+
+          _HeightTransition1("Height Transition 1", Range(0, 1.0)) = 0.0
+      _GrassSlopeThreshold("Grass Slope Threshold", Range(0.0, 1.0)) = 0.5
+
       [HideInInspector] [ToggleUI] _EnableHeightBlend("EnableHeightBlend", Float) = 0.0
       _HeightTransition("Height Transition", Range(0, 1.0)) = 0.0
       // Layer count is passed down to guide height-blend enable/disable, due
@@ -32,7 +36,7 @@ Shader "Custom/TerrainDynamic"
       [HideInInspector] _Smoothness3("Smoothness 3", Range(0.0, 1.0)) = 0.5
 
       // used in fallback on old cards & base map
-      [HideInInspector] _MainTex("BaseMap (RGB)", 2D) = "grey" {}
+      [HideInInspector] _MainTex("Base Map (RGB)", 2D) = "grey" {}
       [HideInInspector] _BaseColor("Main Color", Color) = (1,1,1,1)
 
   [HideInInspector] _TerrainHolesTexture("Holes Map (RGB)", 2D) = "white" {}
@@ -88,8 +92,10 @@ Shader "Custom/TerrainDynamic"
               // Sample normal in pixel shader when doing instancing
               #pragma shader_feature_local _TERRAIN_INSTANCED_PERPIXEL_NORMAL
 
-              #include "Packages/com.unity.render-pipelines.universal/Shaders/Terrain/TerrainLitInput.hlsl"
-              #include "Packages/com.unity.render-pipelines.universal/Shaders/Terrain/TerrainLitPasses.hlsl"
+              #include "TerrainShaderDynamicInput.hlsl"
+#include "TerrainShaderDynamic.hlsl"
+              //#include "Packages/com.unity.render-pipelines.universal/Shaders/Terrain/TerrainLitPasses.hlsl"
+
               ENDHLSL
           }
 
@@ -226,10 +232,10 @@ Shader "Custom/TerrainDynamic"
           UsePass "Hidden/Nature/Terrain/Utilities/PICKING"
       }
         Dependency "AddPassShader" = "Hidden/Universal Render Pipeline/Terrain/Lit (Add Pass)"
-        Dependency "BaseMapShader" = "Hidden/Universal Render Pipeline/Terrain/Lit (Base Pass)"
-        Dependency "BaseMapGenShader" = "Hidden/Universal Render Pipeline/Terrain/Lit (Basemap Gen)"
+  Dependency "BaseMapShader" = "Hidden/Universal Render Pipeline/Terrain/Lit (Base Pass)"
+  Dependency "BaseMapGenShader" = "Hidden/Universal Render Pipeline/Terrain/Lit (Basemap Gen)"
 
-        CustomEditor "UnityEditor.Rendering.Universal.TerrainLitShaderGUI"
+  CustomEditor "DynamicTerrainShaderGUI"
 
-        Fallback "Hidden/Universal Render Pipeline/FallbackError"
+  Fallback "Hidden/Universal Render Pipeline/FallbackError"
 }
