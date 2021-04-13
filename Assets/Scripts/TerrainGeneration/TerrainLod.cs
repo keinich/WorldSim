@@ -17,7 +17,7 @@ public class TerrainLod : MonoBehaviour
 
   public static Vector2 viewerPosition;
   Vector2 viewerPositionOld;
-  static TerrainGenerator terrainGenerator;
+  static TerrainMeshGenerator terrainGenerator;
   int chunkSize;
   int chunksVisibleInViewDistance;
 
@@ -25,7 +25,7 @@ public class TerrainLod : MonoBehaviour
   static List<TerrainChunk> terrainChunksVisibleLastUpdate = new List<TerrainChunk>();
 
   private void Start() {
-    terrainGenerator = FindObjectOfType<TerrainGenerator>();
+    terrainGenerator = FindObjectOfType<TerrainMeshGenerator>();
     terrainGenerator.CreateTerrain();
 
     maxViewDist = detailLevels[detailLevels.Length - 1].visibleDistanceThreshold;
@@ -36,7 +36,7 @@ public class TerrainLod : MonoBehaviour
   }
 
   private void OnValidate() {
-    terrainGenerator = FindObjectOfType<TerrainGenerator>();
+    terrainGenerator = FindObjectOfType<TerrainMeshGenerator>();
   }
 
   private void Update() {
@@ -84,7 +84,7 @@ public class TerrainLod : MonoBehaviour
     LODInfo[] detailLevels;
     LODMesh[] lodMeshes;
 
-    TerrainGenerator.TerrainMapData terrainData;
+    TerrainMeshGenerator.TerrainMapData terrainData;
     bool terrainDataReceived;
     int previousLODIndex = -1;
 
@@ -114,7 +114,7 @@ public class TerrainLod : MonoBehaviour
       terrainGenerator.RequestTerrainData(coord, size, OnTerrainDataReceived);
     }
 
-    void OnTerrainDataReceived(TerrainGenerator.TerrainMapData terrainData) {
+    void OnTerrainDataReceived(TerrainMeshGenerator.TerrainMapData terrainData) {
       this.terrainData = terrainData;
       terrainDataReceived = true;
 
@@ -194,7 +194,7 @@ public class TerrainLod : MonoBehaviour
       updateCallback();
     }
 
-    public void RequestMesh(TerrainGenerator.TerrainMapData terrainData) {
+    public void RequestMesh(TerrainMeshGenerator.TerrainMapData terrainData) {
       hasRequestedMesh = true;
       terrainGenerator.RequestMeshData(terrainData, lod, OnMeshDataReceived);
     }

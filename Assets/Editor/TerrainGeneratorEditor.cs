@@ -11,7 +11,7 @@ public class MeshEditor : Editor {
 
     if (GUILayout.Button("Generate Mesh")) {
       terrainGenerator.GenerateHeightMap();
-      terrainGenerator.ContructMesh();
+      terrainGenerator.ConstructTerrain();
     }
 
     //string numIterationsString = terrainGenerator.numErosionIterations.ToString();
