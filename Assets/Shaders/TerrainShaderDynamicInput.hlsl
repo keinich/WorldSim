@@ -16,6 +16,8 @@ CBUFFER_END
 CBUFFER_START(_Terrain)
 
 float _GrassSlopeThreshold;
+float4 _GrassColor;
+float4 _RockColor;
 
 half _NormalScale0, _NormalScale1, _NormalScale2, _NormalScale3;
 half _Metallic0, _Metallic1, _Metallic2, _Metallic3;

@@ -405,9 +405,9 @@ half4 SplatmapFragment(Varyings IN) : SV_TARGET
     float b = ((1.0f - grassBlendAmount) * slopeThreshold);
     float c = (slope - b) / (slopeThreshold - b);
     c = saturate(c);
-    float3 grassColor = float3(31.0f / 255.0f, 89.0f / 255.0f, 12.0f / 255.0f);
-    float3 rockColor = float3(233.0f / 255.0f, 146.0f / 255.0f, 12.0f / 96.0f);
-    albedo = half4(grassColor * c + rockColor * (1.0f - c), 1.0f);
+    albedo = half4(_GrassColor.rgb * c + _RockColor.rgb * (1.0f - c), 1.0f);
+    //return half4(albedo.r, albedo.g, albedo.b, 1.0);
+
     /*if (slope > 0.5f) {
       c = 1.0f;
     }*/

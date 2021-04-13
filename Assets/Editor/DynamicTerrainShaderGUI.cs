@@ -11,6 +11,8 @@ internal class DynamicTerrainShaderGUI : UnityEditor.ShaderGUI, ITerrainLayerCus
     public readonly GUIContent enableHeightBlend = new GUIContent("Enable Height-based Blend", "Blend terrain layers based on height values.");
     public readonly GUIContent heightTransition = new GUIContent("Height Transition", "Size in world units of the smooth transition between layers.");
     public readonly GUIContent grassSlopeThreshold = new GUIContent("Grass Slope Threshold", "Grass Slope Threshold");
+    public readonly GUIContent grassColor = new GUIContent("Grass Color", "Grass Color");
+    public readonly GUIContent rockColor = new GUIContent("Rock Color", "Rock Color");
     public readonly GUIContent enableInstancedPerPixelNormal = new GUIContent("Enable Per-pixel Normal", "Enable per-pixel normal when the terrain uses instanced rendering.");
 
     public readonly GUIContent diffuseTexture = new GUIContent("Diffuse");
@@ -50,6 +52,12 @@ internal class DynamicTerrainShaderGUI : UnityEditor.ShaderGUI, ITerrainLayerCus
   MaterialProperty grassSlopeThreshold = null;
   const string kgrassSlopeThreshold = "_GrassSlopeThreshold";
 
+  MaterialProperty grassColor = null;
+  const string kgrassColor = "_GrassColor";
+
+  MaterialProperty rockColor = null;
+  const string krockColor = "_RockColor";
+
   // Per-pixel Normal (while instancing)
   MaterialProperty enableInstancedPerPixelNormal = null;
   const string kEnableInstancedPerPixelNormal = "_EnableInstancedPerPixelNormal";
@@ -72,6 +80,8 @@ internal class DynamicTerrainShaderGUI : UnityEditor.ShaderGUI, ITerrainLayerCus
     enableHeightBlend = FindProperty(kEnableHeightBlend, props, false);
     heightTransition = FindProperty(kHeightTransition, props, false);
     grassSlopeThreshold = FindProperty(kgrassSlopeThreshold, props, false);
+    grassColor = FindProperty(kgrassColor, props, false);
+    rockColor = FindProperty(krockColor, props, false);
     enableInstancedPerPixelNormal = FindProperty(kEnableInstancedPerPixelNormal, props, false);
   }
 
@@ -100,6 +110,8 @@ internal class DynamicTerrainShaderGUI : UnityEditor.ShaderGUI, ITerrainLayerCus
     EditorGUI.BeginChangeCheck();
     {
       materialEditorIn.ShaderProperty(grassSlopeThreshold, styles.grassSlopeThreshold);
+      materialEditorIn.ShaderProperty(grassColor, styles.grassColor);
+      materialEditorIn.ShaderProperty(rockColor, styles.rockColor);
       if (enableHeightBlend != null) {
         EditorGUI.indentLevel++;
         materialEditorIn.ShaderProperty(enableHeightBlend, styles.enableHeightBlend);

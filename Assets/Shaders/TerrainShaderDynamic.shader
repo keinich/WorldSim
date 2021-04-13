@@ -3,10 +3,12 @@ Shader "Custom/TerrainDynamic"
   Properties
   {
 
-          _HeightTransition1("Height Transition 1", Range(0, 1.0)) = 0.0
+      _HeightTransition1("Height Transition 1", Range(0, 1.0)) = 0.0
       _GrassSlopeThreshold("Grass Slope Threshold", Range(0.0, 1.0)) = 0.5
+      _GrassColor("Grass Color", Color) = (1,1,1, 1)
+      _RockColor("Rock Color", Color) = (1,1,1, 1)
 
-      [HideInInspector] [ToggleUI] _EnableHeightBlend("EnableHeightBlend", Float) = 0.0
+      [HideInInspector][ToggleUI] _EnableHeightBlend("EnableHeightBlend", Float) = 0.0
       _HeightTransition("Height Transition", Range(0, 1.0)) = 0.0
       // Layer count is passed down to guide height-blend enable/disable, due
       // to the fact that heigh-based blend will be broken with multipass.
@@ -232,10 +234,10 @@ Shader "Custom/TerrainDynamic"
           UsePass "Hidden/Nature/Terrain/Utilities/PICKING"
       }
         Dependency "AddPassShader" = "Hidden/Universal Render Pipeline/Terrain/Lit (Add Pass)"
-  Dependency "BaseMapShader" = "Hidden/Universal Render Pipeline/Terrain/Lit (Base Pass)"
-  Dependency "BaseMapGenShader" = "Hidden/Universal Render Pipeline/Terrain/Lit (Basemap Gen)"
+        Dependency "BaseMapShader" = "Hidden/Universal Render Pipeline/Terrain/Lit (Base Pass)"
+        Dependency "BaseMapGenShader" = "Hidden/Universal Render Pipeline/Terrain/Lit (Basemap Gen)"
 
-  CustomEditor "DynamicTerrainShaderGUI"
+        CustomEditor "DynamicTerrainShaderGUI"
 
-  Fallback "Hidden/Universal Render Pipeline/FallbackError"
+        Fallback "Hidden/Universal Render Pipeline/FallbackError"
 }
