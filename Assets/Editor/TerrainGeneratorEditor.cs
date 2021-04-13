@@ -14,35 +14,35 @@ public class MeshEditor : Editor {
       terrainGenerator.ContructMesh();
     }
 
-    string numIterationsString = terrainGenerator.numErosionIterations.ToString();
-    if (terrainGenerator.numErosionIterations >= 1000) {
-      numIterationsString = (terrainGenerator.numErosionIterations / 1000) + "k";
-    }
+    //string numIterationsString = terrainGenerator.numErosionIterations.ToString();
+    //if (terrainGenerator.numErosionIterations >= 1000) {
+    //  numIterationsString = (terrainGenerator.numErosionIterations / 1000) + "k";
+    //}
 
-    if (GUILayout.Button("Erode (" + numIterationsString + " iterations)")) {
-      var sw = new System.Diagnostics.Stopwatch();
+    //if (GUILayout.Button("Erode (" + numIterationsString + " iterations)")) {
+    //  var sw = new System.Diagnostics.Stopwatch();
 
-      sw.Start();
-      terrainGenerator.GenerateHeightMap();
-      int heightMapTimer = (int)sw.ElapsedMilliseconds;
-      sw.Reset();
+    //  sw.Start();
+    //  terrainGenerator.GenerateHeightMap();
+    //  int heightMapTimer = (int)sw.ElapsedMilliseconds;
+    //  sw.Reset();
 
-      sw.Start();
-      terrainGenerator.Erode();
-      int erosionTimer = (int)sw.ElapsedMilliseconds;
-      sw.Reset();
+    //  sw.Start();
+    //  terrainGenerator.Erode();
+    //  int erosionTimer = (int)sw.ElapsedMilliseconds;
+    //  sw.Reset();
 
-      sw.Start();
-      terrainGenerator.ContructMesh();
-      int meshTimer = (int)sw.ElapsedMilliseconds;
+    //  sw.Start();
+    //  terrainGenerator.ContructMesh();
+    //  int meshTimer = (int)sw.ElapsedMilliseconds;
 
-      if (terrainGenerator.printTimers) {
-        Debug.Log($"{terrainGenerator.mapSize}x{terrainGenerator.mapSize} heightmap generated in {heightMapTimer}ms");
-        Debug.Log($"{numIterationsString} erosion iterations completed in {erosionTimer}ms");
-        Debug.Log($"Mesh constructed in {meshTimer}ms");
-      }
+    //  if (terrainGenerator.printTimers) {
+    //    Debug.Log($"{terrainGenerator.mapSize}x{terrainGenerator.mapSize} heightmap generated in {heightMapTimer}ms");
+    //    Debug.Log($"{numIterationsString} erosion iterations completed in {erosionTimer}ms");
+    //    Debug.Log($"Mesh constructed in {meshTimer}ms");
+    //  }
 
-    }
+    //}
   }
 
   void OnEnable() {
