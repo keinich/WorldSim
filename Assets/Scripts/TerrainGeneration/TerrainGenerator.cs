@@ -6,6 +6,7 @@ using UnityEngine;
 public class TerrainGenerator : MonoBehaviour {
 
   public bool printTimers;
+  public bool autoUpdate = true;
 
   [Header("Mesh Settings")]
   public int mapSize = 255;
@@ -13,24 +14,53 @@ public class TerrainGenerator : MonoBehaviour {
   public float elevationScale = 10;
   public Material material;
 
-  // Internal
-  float[] map;  
+  [Header("Perlin Noise")]
+  public int seed;
+  public bool randomizeSeed;
 
-  static HeightmapGenerator heightmapGenerator;
-  
-  private void Start() {
-    heightmapGenerator = GetComponent<HeightmapGenerator>();
-    if (!heightmapGenerator) {
-      Debug.Log("No HeightmapGenerator!");
-    }
+  public int numOctaves = 7;
+  public float persistence = .5f;
+  public float lacunarity = 2;
+  public float initialScale = 2;
+
+  [Header("Erosion")]
+  [Range(0, 1)]
+  public float inertia = .05f; // At zero, water will instantly change direction to flow downhill. At 1, water will never change direction. 
+  public float sedimentCapacityFactor = 4; // Multiplier for how much sediment a droplet can carry
+  public float minSedimentCapacity = .01f; // Used to prevent carry capacity getting too close to zero on flatter terrain
+  [Range(0, 1)]
+  public float erodeSpeed = .3f;
+  [Range(0, 1)]
+  public float depositSpeed = .3f;
+  [Range(0, 1)]
+  public float evaporateSpeed = .01f;
+  public float gravity = 4;
+
+
+  public ComputeShader erosion;
+  public int numErosionIterations = 50000;
+  public int erosionBrushRadius = 3;
+
+  public int maxLifetime = 30;
+
+  public float startSpeed = 1;
+  public float startWater = 1;
+
+  // Internal
+  float[] map;
+
+  private void Start() {  
     CreateTerrain();
   }
 
   public void CreateTerrain() {
     GenerateHeightMap();
-    Erosion erosion = GetComponent<Erosion>();
     if (erosion) {
-      erosion.ErodeGpu(map, mapSize);
+      Erosion.Erode(
+        map,
+        mapSize,
+        numErosionIterations, erosionBrushRadius, erosion, maxLifetime, inertia, depositSpeed, minSedimentCapacity, evaporateSpeed, sedimentCapacityFactor, erodeSpeed, startSpeed, startWater, gravity
+      );
     }
   }
 
@@ -38,13 +68,12 @@ public class TerrainGenerator : MonoBehaviour {
   }
 
   public void GenerateHeightMap() {
-    Erosion erosion = GetComponent<Erosion>();
     int mapSizeWithBorder = mapSize;
-    if (erosion) {
-      mapSizeWithBorder = mapSize + erosion.erosionBrushRadius * 2;
-    }
-    map = FindObjectOfType<HeightmapGenerator>().GenerateHeightMap(mapSizeWithBorder);
-    erosion.ErodeGpu(map, mapSize);
+      mapSizeWithBorder = mapSize + erosionBrushRadius * 2;
+    map = HeightmapGenerator.GenerateHeightMap(
+      mapSizeWithBorder, seed, randomizeSeed, numOctaves, initialScale, persistence, lacunarity
+    );
+    Erosion.Erode(map, mapSize, numErosionIterations, erosionBrushRadius, erosion, maxLifetime, inertia, depositSpeed, minSedimentCapacity, evaporateSpeed, sedimentCapacityFactor, erodeSpeed, startSpeed, startWater, gravity);
   }
 
   public void ConstructTerrain() {

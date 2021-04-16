@@ -7,7 +7,13 @@ public class MeshEditor : Editor {
   TerrainGenerator terrainGenerator;
 
   public override void OnInspectorGUI() {
-    DrawDefaultInspector();
+
+    if (DrawDefaultInspector()) {
+      if (terrainGenerator.autoUpdate) {
+        terrainGenerator.GenerateHeightMap();
+        terrainGenerator.ConstructTerrain();
+      }
+    }
 
     if (GUILayout.Button("Generate Mesh")) {
       terrainGenerator.GenerateHeightMap();

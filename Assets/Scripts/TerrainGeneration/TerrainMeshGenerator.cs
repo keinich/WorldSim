@@ -7,13 +7,43 @@ public class TerrainMeshGenerator : MonoBehaviour {
 
   public bool printTimers;
 
+  [Header("Perlin Noise")]
+  public int seed;
+  public bool randomizeSeed;
+
+  public int numOctaves = 7;
+  public float persistence = .5f;
+  public float lacunarity = 2;
+  public float initialScale = 2;
+
+  [Header("Erosion")]
+  [Range(0, 1)]
+  public float inertia = .05f; // At zero, water will instantly change direction to flow downhill. At 1, water will never change direction. 
+  public float sedimentCapacityFactor = 4; // Multiplier for how much sediment a droplet can carry
+  public float minSedimentCapacity = .01f; // Used to prevent carry capacity getting too close to zero on flatter terrain
+  [Range(0, 1)]
+  public float erodeSpeed = .3f;
+  [Range(0, 1)]
+  public float depositSpeed = .3f;
+  [Range(0, 1)]
+  public float evaporateSpeed = .01f;
+  public float gravity = 4;
+
+
+  public ComputeShader erosion;
+  public int numErosionIterations = 50000;
+  public int erosionBrushRadius = 3;
+
+  public int maxLifetime = 30;
+
+  public float startSpeed = 1;
+  public float startWater = 1;
+
   [Header("Mesh Settings")]
   public int mapSize = 255;
   public float scale = 20;
   public float elevationScale = 10;
   public Material material;
-
-
 
   // Internal
   float[] map;
@@ -22,25 +52,16 @@ public class TerrainMeshGenerator : MonoBehaviour {
   MeshRenderer meshRenderer;
   MeshFilter meshFilter;
 
-  static HeightmapGenerator heightmapGenerator;
-
   Queue<TerrainThreadInfo<TerrainMapData>> mapDataThreadInfoQueue = new Queue<TerrainThreadInfo<TerrainMapData>>();
   Queue<TerrainThreadInfo<MeshData>> meshDataThreadInfoQueue = new Queue<TerrainThreadInfo<MeshData>>();
 
-  private void Start() {
-    heightmapGenerator = GetComponent<HeightmapGenerator>();
-    if (!heightmapGenerator) {
-      Debug.Log("No HeightmapGenerator!");
-    }
+  private void Start() {  
     CreateTerrain();
   }
 
   public void CreateTerrain() {
     GenerateHeightMap();
-    Erosion erosion = GetComponent<Erosion>();
-    if (erosion) {
-      erosion.ErodeGpu(map, mapSize);
-    }
+    Erosion.Erode(map, mapSize, numErosionIterations, erosionBrushRadius, erosion, maxLifetime, inertia, depositSpeed, minSedimentCapacity, evaporateSpeed, sedimentCapacityFactor, erodeSpeed, startSpeed, startWater, gravity);
   }
 
   private void OnValidate() {
@@ -62,19 +83,15 @@ public class TerrainMeshGenerator : MonoBehaviour {
   }
 
   public void GenerateHeightMap() {
-    Erosion erosion = GetComponent<Erosion>();
     int mapSizeWithBorder = mapSize;
-    if (erosion) {
-      mapSizeWithBorder = mapSize + erosion.erosionBrushRadius * 2;
-    }
-    map = FindObjectOfType<HeightmapGenerator>().GenerateHeightMap(mapSizeWithBorder);
-    erosion.ErodeGpu(map, mapSize);
+    mapSizeWithBorder = mapSize + erosionBrushRadius * 2;
+    map = HeightmapGenerator.GenerateHeightMap(
+      mapSizeWithBorder, seed, randomizeSeed, numOctaves, initialScale, persistence, lacunarity
+    );
+    Erosion.Erode(map, mapSize, numErosionIterations, erosionBrushRadius, erosion, maxLifetime, inertia, depositSpeed, minSedimentCapacity, evaporateSpeed, sedimentCapacityFactor, erodeSpeed, startSpeed, startWater, gravity);
   }
 
-  public TerrainMapData GenerateTerrainData(Vector2 chunkCoord, int chunkSize) {
-    if (!heightmapGenerator) {
-      return new TerrainMapData();
-    }
+  public TerrainMapData GenerateTerrainData(Vector2 chunkCoord, int chunkSize) {   
     float[,] heightMap = GetHeightMap(map);
     float[,] chunkHeightMap = GetChunkHeightMap(heightMap, chunkCoord, chunkSize);
     return new TerrainMapData(chunkHeightMap);
@@ -107,13 +124,8 @@ public class TerrainMeshGenerator : MonoBehaviour {
     for (int i = 0; i < mapSize * mapSize; i++) {
       int x = i % mapSize;
       int y = i / mapSize;
-      int erosionBrushRadius = 0;
       int mapSizeWithBorder = mapSize;
-      Erosion erosion = GetComponent<Erosion>();
-      if (erosion) {
-        mapSizeWithBorder = mapSize + erosion.erosionBrushRadius * 2;
-        erosionBrushRadius = erosion.erosionBrushRadius;
-      }
+      mapSizeWithBorder = mapSize + erosionBrushRadius * 2;
       int borderedMapIndex = (y + erosionBrushRadius) * mapSizeWithBorder + x + erosionBrushRadius;
       int meshMapIndex = y * mapSize + x;
 

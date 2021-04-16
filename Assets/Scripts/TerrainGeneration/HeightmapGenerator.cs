@@ -1,23 +1,16 @@
 using UnityEngine;
 
-public class HeightmapGenerator : MonoBehaviour {
+public static class HeightmapGenerator { 
 
-  public int seed;
-  public bool randomizeSeed;
-
-  public int numOctaves = 7;
-  public float persistence = .5f;
-  public float lacunarity = 2;
-  public float initialScale = 2;
-
-  public bool useComputeShader = true;
-  public ComputeShader heightMapComputeShader;
-
-  public float[] GenerateHeightMap(int mapSize) {
-    return GenerateHeightMapCPU(mapSize);
-  }
-
-  float[] GenerateHeightMapCPU(int mapSize) {
+  public static float[] GenerateHeightMap(
+    int mapSize, 
+    int seed, 
+    bool randomizeSeed, 
+    int numOctaves, 
+    float initialScale, 
+    float persistence, 
+    float lacunarity
+  ) {
 
     var map = new float[mapSize * mapSize];
     seed = (randomizeSeed) ? Random.Range(-10000, 10000) : seed;
