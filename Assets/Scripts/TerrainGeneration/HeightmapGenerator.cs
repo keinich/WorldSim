@@ -1,15 +1,18 @@
 using UnityEngine;
 
-public static class HeightmapGenerator { 
+public static class HeightmapGenerator {
 
   public static float[] GenerateHeightMap(
-    int mapSize, 
-    int seed, 
-    bool randomizeSeed, 
-    int numOctaves, 
-    float initialScale, 
-    float persistence, 
-    float lacunarity
+    int mapSize,
+    int seed,
+    bool randomizeSeed,
+    int numOctaves,
+    float initialScale,
+    float persistence,
+    float lacunarity,
+    Texture2D mountainMap,
+    float mountainBlurResolution,
+    float mountainBlurSize
   ) {
 
     var map = new float[mapSize * mapSize];
@@ -24,14 +27,24 @@ public static class HeightmapGenerator {
     float minValue = float.MaxValue;
     float maxValue = float.MinValue;
 
-    float[] mountainMask = new float[mapSize * mapSize];
+    Texture2D bluredMountainMap = ShaderUtilities.Blur(mountainMap, mountainBlurResolution, mountainBlurSize);
+
+    float[] mountainMaskArray = new float[mapSize * mapSize];
     for (int x = 0; x < mapSize; x++) {
       for (int y = 0; y < mapSize; y++) {
-        Vector2 p = new Vector2(x / (float)mapSize, y / (float)mapSize) * 2;
+        //int u = x * (mapSize / mountainMap.width);
+        //int v = y * (mapSize / mountainMap.height);
+        int u = x * (bluredMountainMap.width / mapSize);
+        int v = y * (bluredMountainMap.height / mapSize);
+        Color mountainIntensityColor = bluredMountainMap.GetPixel(u, v);
+        float mountainIntensity = mountainIntensityColor.r;
         //mountainMask[x * mapSize + y] = Mathf.PerlinNoise(p.x, p.y);
-        mountainMask[x * mapSize + y] = ((float)x + y) / (2f * mapSize);
+        mountainMaskArray[x * mapSize + y] = mountainIntensity;
       }
     }
+
+
+    //return mountainMaskArray;
 
     for (int y = 0; y < mapSize; y++) {
       for (int x = 0; x < mapSize; x++) {
@@ -44,7 +57,8 @@ public static class HeightmapGenerator {
           weight *= persistence;
           scale *= lacunarity;
         }
-        float height = noiseValue * mountainMask[y * mapSize + x];
+        float height = noiseValue * mountainMaskArray[y * mapSize + x];
+        //float height = noiseValue;
         map[y * mapSize + x] = height;
         minValue = Mathf.Min(noiseValue, minValue);
         maxValue = Mathf.Max(noiseValue, maxValue);

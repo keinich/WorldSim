@@ -7,6 +7,11 @@ public class TerrainMeshGenerator : MonoBehaviour {
 
   public bool printTimers;
 
+  [Header("Layout")]
+  public Texture2D mountainMask;
+  public float mountainMapBlurResolution;
+  public float mountainMapBlurSize;
+
   [Header("Perlin Noise")]
   public int seed;
   public bool randomizeSeed;
@@ -55,7 +60,7 @@ public class TerrainMeshGenerator : MonoBehaviour {
   Queue<TerrainThreadInfo<TerrainMapData>> mapDataThreadInfoQueue = new Queue<TerrainThreadInfo<TerrainMapData>>();
   Queue<TerrainThreadInfo<MeshData>> meshDataThreadInfoQueue = new Queue<TerrainThreadInfo<MeshData>>();
 
-  private void Start() {  
+  private void Start() {
     CreateTerrain();
   }
 
@@ -86,12 +91,12 @@ public class TerrainMeshGenerator : MonoBehaviour {
     int mapSizeWithBorder = mapSize;
     mapSizeWithBorder = mapSize + erosionBrushRadius * 2;
     map = HeightmapGenerator.GenerateHeightMap(
-      mapSizeWithBorder, seed, randomizeSeed, numOctaves, initialScale, persistence, lacunarity
+      mapSizeWithBorder, seed, randomizeSeed, numOctaves, initialScale, persistence, lacunarity, mountainMask, mountainMapBlurResolution, mountainMapBlurSize
     );
     Erosion.Erode(map, mapSize, numErosionIterations, erosionBrushRadius, erosion, maxLifetime, inertia, depositSpeed, minSedimentCapacity, evaporateSpeed, sedimentCapacityFactor, erodeSpeed, startSpeed, startWater, gravity);
   }
 
-  public TerrainMapData GenerateTerrainData(Vector2 chunkCoord, int chunkSize) {   
+  public TerrainMapData GenerateTerrainData(Vector2 chunkCoord, int chunkSize) {
     float[,] heightMap = GetHeightMap(map);
     float[,] chunkHeightMap = GetChunkHeightMap(heightMap, chunkCoord, chunkSize);
     return new TerrainMapData(chunkHeightMap);

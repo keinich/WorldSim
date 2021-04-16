@@ -7,12 +7,19 @@ public class TerrainGenerator : MonoBehaviour {
 
   public bool printTimers;
   public bool autoUpdate = true;
+  public bool useErosion = true;
 
   [Header("Mesh Settings")]
   public int mapSize = 255;
   public float scale = 20;
   public float elevationScale = 10;
   public Material material;
+
+  [Header("Layout")]
+  public Texture2D mountainMap;
+  public static ComputeShader blurShader;
+  public float mountainMapBlurResolution;
+  public float mountainMapBlurSize;
 
   [Header("Perlin Noise")]
   public int seed;
@@ -49,19 +56,19 @@ public class TerrainGenerator : MonoBehaviour {
   // Internal
   float[] map;
 
-  private void Start() {  
-    CreateTerrain();
+  private void Start() {
+    GenerateHeightMap();
   }
 
   public void CreateTerrain() {
-    GenerateHeightMap();
-    if (erosion) {
-      Erosion.Erode(
-        map,
-        mapSize,
-        numErosionIterations, erosionBrushRadius, erosion, maxLifetime, inertia, depositSpeed, minSedimentCapacity, evaporateSpeed, sedimentCapacityFactor, erodeSpeed, startSpeed, startWater, gravity
-      );
-    }
+    //GenerateHeightMap();
+    //if (erosion) {
+    //  Erosion.Erode(
+    //    map,
+    //    mapSize,
+    //    numErosionIterations, erosionBrushRadius, erosion, maxLifetime, inertia, depositSpeed, minSedimentCapacity, evaporateSpeed, sedimentCapacityFactor, erodeSpeed, startSpeed, startWater, gravity
+    //  );
+    //}
   }
 
   private void OnValidate() {
@@ -69,11 +76,13 @@ public class TerrainGenerator : MonoBehaviour {
 
   public void GenerateHeightMap() {
     int mapSizeWithBorder = mapSize;
-      mapSizeWithBorder = mapSize + erosionBrushRadius * 2;
+    mapSizeWithBorder = mapSize + erosionBrushRadius * 2;
     map = HeightmapGenerator.GenerateHeightMap(
-      mapSizeWithBorder, seed, randomizeSeed, numOctaves, initialScale, persistence, lacunarity
+      mapSizeWithBorder, seed, randomizeSeed, numOctaves, initialScale, persistence, lacunarity, mountainMap, mountainMapBlurResolution, mountainMapBlurSize
     );
-    Erosion.Erode(map, mapSize, numErosionIterations, erosionBrushRadius, erosion, maxLifetime, inertia, depositSpeed, minSedimentCapacity, evaporateSpeed, sedimentCapacityFactor, erodeSpeed, startSpeed, startWater, gravity);
+    if (useErosion) {
+      Erosion.Erode(map, mapSize, numErosionIterations, erosionBrushRadius, erosion, maxLifetime, inertia, depositSpeed, minSedimentCapacity, evaporateSpeed, sedimentCapacityFactor, erodeSpeed, startSpeed, startWater, gravity);
+    }
   }
 
   public void ConstructTerrain() {
@@ -81,6 +90,8 @@ public class TerrainGenerator : MonoBehaviour {
     terrain.terrainData.heightmapResolution = mapSize;
     float[,] heightMap = GetTerrainHeightMap(map);
     terrain.terrainData.SetHeights(0, 0, heightMap);
+    terrain.drawInstanced = false;
+    terrain.Flush();
   }
 
   private float[,] GetTerrainHeightMap(float[] map) {
