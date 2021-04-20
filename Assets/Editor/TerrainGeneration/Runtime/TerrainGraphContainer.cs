@@ -8,5 +8,6 @@ public class TerrainGraphContainer : ScriptableObject {
 
   public List<NodeLinkData> NodeLinks = new List<NodeLinkData>();
   public List<TerrainNodeData> TerrainNodeDatas = new List<TerrainNodeData>();
+  public List<ExposedProperty> ExposedProperties = new List<ExposedProperty>();
 
 }

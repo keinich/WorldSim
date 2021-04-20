@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a4a74b8d3d44314eb5403005778eddb, type: 3}
+  m_Name: New Terrain
+  m_EditorClassIdentifier: 
+  NodeLinks:
+  - BaseNodeId: bd382172-fcfd-4552-a448-8e86997a08d1
+    PortName: 
+    TargetNodeId: bb337618-25f1-4b61-a6f8-c2b71c0f3902
+  - BaseNodeId: bb337618-25f1-4b61-a6f8-c2b71c0f3902
+    PortName: 
+    TargetNodeId: d6c70438-5c5f-4579-b0d0-b9b04c9201fe
+  - BaseNodeId: bb337618-25f1-4b61-a6f8-c2b71c0f3902
+    PortName: 
+    TargetNodeId: b83ef72b-1419-4edb-9024-6375f0cfc29c
+  - BaseNodeId: b83ef72b-1419-4edb-9024-6375f0cfc29c
+    PortName: 
+    TargetNodeId: 558d47ee-d310-42e5-ae44-6f06806c25e7
+  TerrainNodeDatas:
+  - NodeId: d6c70438-5c5f-4579-b0d0-b9b04c9201fe
+    Content: Terrain Node
+    Position: {x: 516.8, y: 152}
+  - NodeId: bb337618-25f1-4b61-a6f8-c2b71c0f3902
+    Content: Asd
+    Position: {x: 260.8, y: 227.2}
+  - NodeId: 558d47ee-d310-42e5-ae44-6f06806c25e7
+    Content: Erosion
+    Position: {x: 832, y: 251.99998}
+  - NodeId: b83ef72b-1419-4edb-9024-6375f0cfc29c
+    Content: Terrain Node
+    Position: {x: 561.6, y: 300.80002}
+  ExposedProperties:
+  - PropertyName: Height
+    PropetyValue: 10
+  - PropertyName: Width
+    PropetyValue: New Value

@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
+using UnityEditor.Experimental.GraphView;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -20,6 +22,37 @@ public class TerrainGraph : EditorWindow {
   private void OnEnable() {
     ConstructGraphView();
     GenerateToolbar();
+    GenerateMiniMap();
+    GenerateBlackBoard();
+  }
+
+  private void GenerateBlackBoard() {
+    Blackboard blackboard = new Blackboard(graphView);
+    blackboard.Add(new BlackboardSection { title = "Exposed Properties" });
+    blackboard.addItemRequested = bb => { graphView.AddPropertyToBlackBoard(new ExposedProperty()); };
+    blackboard.editTextRequested = (bb1, element, newValue) => {
+      string oldPropertyName = ((BlackboardField)element).text;
+      if (graphView.exposedProperties.Any(x => x.PropertyName == newValue)) {
+        EditorUtility.DisplayDialog("Error", "Variable Name already in use", "OK");
+        return;
+      }
+
+      int propertyIndex = graphView.exposedProperties.FindIndex(x => x.PropertyName == oldPropertyName);
+      graphView.exposedProperties[propertyIndex].PropertyName = newValue;
+      ((BlackboardField)element).text = newValue;
+    };
+
+    blackboard.SetPosition(new Rect(10, 30, 200, 300));
+    graphView.blackboard = blackboard;
+    graphView.Add(blackboard);
+  }
+
+  private void GenerateMiniMap() {
+    MiniMap miniMap = new MiniMap { anchored = true };
+    Vector2 coords = graphView.contentViewContainer.WorldToLocal(p: new Vector2(x: this.position.width - 10, y: 30));
+    miniMap.SetPosition(new Rect(coords.x, coords.y, 200, 140));
+    //miniMap.SetPosition(new Rect(0, 0, 200, 140));
+    graphView.Add(miniMap);
   }
 
   private void OnDisable() {
@@ -27,7 +60,7 @@ public class TerrainGraph : EditorWindow {
   }
 
   private void ConstructGraphView() {
-    graphView = new TerrainGraphView() {
+    graphView = new TerrainGraphView(this) {
       name = "Terrain Graph"
     };
     graphView.StretchToParentSize();
@@ -45,12 +78,6 @@ public class TerrainGraph : EditorWindow {
 
     toolbar.Add(new Button(() => SaveData()) { text = "Save Data" }); ;
     toolbar.Add(new Button(() => LoadData()) { text = "Load Data" }); ;
-
-    Button nodeCreateButton = new Button(
-      clickEvent: () => { graphView.CreateNode("Terrain Node"); }
-    );
-    nodeCreateButton.text = "Create Node";
-    toolbar.Add(nodeCreateButton);
 
     rootVisualElement.Add(toolbar);
 
@@ -73,7 +100,8 @@ public class TerrainGraph : EditorWindow {
     GraphSaveUtility saveUtility = GraphSaveUtility.GetInstance(graphView);
     if (save) {
       saveUtility.SaveGraph(fileName);
-    } else {
+    }
+    else {
       saveUtility.LoadGraph(fileName);
     }
   }
