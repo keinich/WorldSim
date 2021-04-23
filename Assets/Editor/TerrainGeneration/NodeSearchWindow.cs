@@ -23,7 +23,9 @@ public class NodeSearchWindow : ScriptableObject, ISearchWindowProvider {
       new SearchTreeEntry(new GUIContent("Erosion")) {userData=new TerrainNodeView(), level=2},
       new SearchTreeEntry(new GUIContent("Beach")) { level = 2},
       new SearchTreeGroupEntry(new GUIContent("Input"),level:1),
-      new SearchTreeEntry(new GUIContent("Heightmap")) {userData=new HeightmapInputNodeView(new HeightMapInputNode()), level=2}
+      new SearchTreeEntry(new GUIContent("Heightmap")) {
+        userData=new HeightmapInputNodeView(ScriptableObject.CreateInstance<HeightMapInputNode>()), level=2
+      }
     };
 
     return tree;
@@ -32,7 +34,7 @@ public class NodeSearchWindow : ScriptableObject, ISearchWindowProvider {
   public bool OnSelectEntry(SearchTreeEntry SearchTreeEntry, SearchWindowContext context) {
 
     var worldMousePosition = window.rootVisualElement.ChangeCoordinatesTo(
-      window.rootVisualElement.parent, 
+      window.rootVisualElement.parent,
       context.screenMousePosition - window.position.position
     );
     var localMousePosition = graphView.contentViewContainer.WorldToLocal(worldMousePosition);

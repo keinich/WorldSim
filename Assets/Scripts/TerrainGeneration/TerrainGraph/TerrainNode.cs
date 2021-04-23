@@ -24,9 +24,21 @@ public class HeightmapOutputReceiver {
 }
 
 [Serializable]
-public class TerrainNode {
+public class TerrainNode : ScriptableObject {
 
-  public string id;
+  [SerializeField]
+  private string _id;
+
+  [SerializeField]
+  public string id {
+    get { 
+      if (string.IsNullOrEmpty(_id)) {
+        _id = Guid.NewGuid().ToString();
+      }
+      return _id; 
+    }
+    set { _id = value; }
+  }
 
   public List<HeightmapOutput> heightmapOutputs = new List<HeightmapOutput>();
   public List<HeightmapOutputReceiver> heightmapInputs = new List<HeightmapOutputReceiver>();

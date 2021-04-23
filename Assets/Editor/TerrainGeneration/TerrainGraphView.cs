@@ -73,6 +73,9 @@ public class TerrainGraphView : GraphView {
 
   internal void buildGraph(TerrainGenerator tg) {
     this.terrainGenerator = tg;
+    if(tg.terrainGraph.resultNode is null) {
+      tg.terrainGraph.resultNode = ScriptableObject.CreateInstance<ResultNode>();
+    }
     this.CreateNode(tg.terrainGraph.resultNode, Vector2.zero);
     foreach (TerrainNode terrainNode in terrainGenerator.terrainGraph.terrainNodes) {
       this.CreateNode(terrainNode, Vector2.zero);
@@ -101,7 +104,6 @@ public class TerrainGraphView : GraphView {
 
     TerrainNodeView node = new TerrainNodeView() {
       title = "Start",
-      Id = Guid.NewGuid().ToString(),
       Content = "ENTRYPOINT",
       EntryPoint = true
     };
@@ -123,6 +125,7 @@ public class TerrainGraphView : GraphView {
   }
 
   public void AddNode(TerrainNodeView node, Vector2 position) {
+    terrainGenerator.terrainGraph.terrainNodes.Add(node.terrainNode);
     node.SetPosition(new Rect(position: position, defaultNodeSize));
     AddElement(node);
   }
@@ -134,14 +137,18 @@ public class TerrainGraphView : GraphView {
         node.SetPosition(new Rect(position: position, defaultNodeSize));
         AddElement(node);
         break;
+      case HeightMapInputNode heightmapInputNode:
+        HeightmapInputNodeView nodeView = new HeightmapInputNodeView(heightmapInputNode);
+        nodeView.SetPosition(new Rect(position: position, defaultNodeSize));
+        AddElement(nodeView);
+        break;
     }
   }
 
   internal TerrainNodeView CreateTerrainNodeOld(string nodeName, Vector2 position) {
     TerrainNodeView terrainNode = new TerrainNodeView {
       title = nodeName,
-      Content = nodeName,
-      Id = Guid.NewGuid().ToString()
+      Content = nodeName
     };
 
     Port inputPort = terrainNode.GeneratePort(Direction.Input, Port.Capacity.Multi);

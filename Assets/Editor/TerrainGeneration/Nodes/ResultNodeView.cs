@@ -12,7 +12,6 @@ public class ResultNodeView : TerrainNodeView {
 
     title = "Result";
     Content = "Result";
-    Id = Guid.NewGuid().ToString();
 
     GeneratePorts();
 

@@ -15,8 +15,6 @@ public class HeightmapInputNodeView : TerrainNodeView {
     terrainNode = heightMapInputNode;
     title = "Heightmap Input";
 
-    Id = Guid.NewGuid().ToString();
-
     GeneratePorts();
 
     styleSheets.Add(Resources.Load<StyleSheet>(path: "Node"));

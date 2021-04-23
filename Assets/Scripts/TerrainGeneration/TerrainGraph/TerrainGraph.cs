@@ -10,8 +10,8 @@ public class TerrainGraph {
 
   public TerrainGraph() {
     terrainNodes = new List<TerrainNode>();
-    resultNode = new ResultNode();
   }
 
   public List<TerrainNode> terrainNodes;
+ 
 }

@@ -25,7 +25,7 @@ public class GraphSaveUtility {
   public void SaveGraph(string fileName) {
 
     TerrainGraphContainer graphContainer = ScriptableObject.CreateInstance<TerrainGraphContainer>();
-    if (!SaveNodes(graphContainer)) return;
+    //if (!SaveNodes(graphContainer)) return;
 
     SaveExposedProperties(graphContainer);
 
@@ -41,49 +41,49 @@ public class GraphSaveUtility {
     terrainGraphContainer.ExposedProperties.AddRange(_targetGraphView.exposedProperties);
   }
 
-  private bool SaveNodes(TerrainGraphContainer terrainGraphContainer) {
+  //private bool SaveNodes(TerrainGraphContainer terrainGraphContainer) {
 
-    if (!Edges.Any()) return false;
+    //if (!Edges.Any()) return false;
 
 
-    Edge[] connectedPorts = Edges.Where(x => x.input.node != null).ToArray();
-    for (int i = 0; i < connectedPorts.Length; i++) {
-      TerrainNodeView outputNode = connectedPorts[i].output.node as TerrainNodeView;
-      TerrainNodeView inputNode = connectedPorts[i].input.node as TerrainNodeView;
+    //Edge[] connectedPorts = Edges.Where(x => x.input.node != null).ToArray();
+    //for (int i = 0; i < connectedPorts.Length; i++) {
+    //  TerrainNodeView outputNode = connectedPorts[i].output.node as TerrainNodeView;
+    //  TerrainNodeView inputNode = connectedPorts[i].input.node as TerrainNodeView;
 
-      terrainGraphContainer.NodeLinks.Add(
-        new NodeLinkData {
-          BaseNodeId = outputNode.Id,
-          PortName = connectedPorts[i].output.name,
-          TargetNodeId = inputNode.Id
-        }
-      );
-    }
+    //  terrainGraphContainer.NodeLinks.Add(
+    //    new NodeLinkData {
+    //      BaseNodeId = outputNode.Id,
+    //      PortName = connectedPorts[i].output.name,
+    //      TargetNodeId = inputNode.Id
+    //    }
+    //  );
+    //}
 
-    foreach (TerrainNodeView terrainNode in Nodes.Where(node => !node.EntryPoint)) {
-      terrainGraphContainer.TerrainNodeDatas.Add(
-        new TerrainNodeData {
-          NodeId = terrainNode.Id,
-          Content = terrainNode.Content,
-          Position = terrainNode.GetPosition().position
-        }
-      );
-    }
+    //foreach (TerrainNodeView terrainNode in Nodes.Where(node => !node.EntryPoint)) {
+    //  terrainGraphContainer.TerrainNodeDatas.Add(
+    //    new TerrainNodeData {
+    //      NodeId = terrainNode.Id,
+    //      Content = terrainNode.Content,
+    //      Position = terrainNode.GetPosition().position
+    //    }
+    //  );
+    //}
 
-    return true;
-  }
+    //return true;
+  //}
 
   public void LoadGraph(string fileName) {
     _container = Resources.Load<TerrainGraphContainer>(fileName);
-    if (_container == null) {
-      EditorUtility.DisplayDialog("File Not Found", "File does not exist!", "OK");
-      return;
-    }
+    //if (_container == null) {
+    //  EditorUtility.DisplayDialog("File Not Found", "File does not exist!", "OK");
+    //  return;
+    //}
 
-    ClearGraph();
-    CreateNodes();
-    ConnectNodes();
-    CreateExposedProperties();
+    //ClearGraph();
+    //CreateNodes();
+    //ConnectNodes();
+    //CreateExposedProperties();
 
   }
 
@@ -97,46 +97,46 @@ public class GraphSaveUtility {
   }
 
   private void ClearGraph() {
-    Nodes.Find(x => x.EntryPoint).Id = _container.NodeLinks[0].BaseNodeId;
+    //Nodes.Find(x => x.EntryPoint).Id = _container.NodeLinks[0].BaseNodeId;
 
-    foreach (TerrainNodeView node in Nodes) {
-      if (node.EntryPoint) continue;
-      Edges.Where(x => x.input.node == node).ToList().ForEach(edge => _targetGraphView.RemoveElement(edge));
+    //foreach (TerrainNodeView node in Nodes) {
+    //  if (node.EntryPoint) continue;
+    //  Edges.Where(x => x.input.node == node).ToList().ForEach(edge => _targetGraphView.RemoveElement(edge));
 
-      _targetGraphView.RemoveElement(node);
-    }
+    //  _targetGraphView.RemoveElement(node);
+    //}
   }
 
   private void CreateNodes() {
-    foreach (TerrainNodeData nodeData in _container.TerrainNodeDatas) {
-      TerrainNodeView tempNode = _targetGraphView.CreateTerrainNodeOld(nodeData.Content, Vector2.zero);
-      tempNode.Id = nodeData.NodeId;
-      _targetGraphView.AddElement(tempNode);
+    //foreach (TerrainNodeData nodeData in _container.TerrainNodeDatas) {
+    //  TerrainNodeView tempNode = _targetGraphView.CreateTerrainNodeOld(nodeData.Content, Vector2.zero);
+    //  tempNode.Id = nodeData.NodeId;
+    //  _targetGraphView.AddElement(tempNode);
 
-      List<NodeLinkData> nodePorts = _container.NodeLinks.Where(x => x.BaseNodeId == nodeData.NodeId).ToList();
-      nodePorts.ForEach(x => _targetGraphView.AddChoicePort(tempNode, x.PortName));
-    }
+    //  List<NodeLinkData> nodePorts = _container.NodeLinks.Where(x => x.BaseNodeId == nodeData.NodeId).ToList();
+    //  nodePorts.ForEach(x => _targetGraphView.AddChoicePort(tempNode, x.PortName));
+    //}
   }
 
   private void ConnectNodes() {
-    for (int i = 0; i < Nodes.Count; i++) {
-      List<NodeLinkData> connections = _container.NodeLinks.Where(x => x.BaseNodeId == Nodes[i].Id).ToList();
-      for (int j = 0; j < connections.Count; j++) {
-        string targetNodeId = connections[j].TargetNodeId;
-        TerrainNodeView targetNode = Nodes.First(x => x.Id == targetNodeId);
-        LinkNodes(Nodes[i].outputContainer[j].Q<Port>(), (Port)targetNode.inputContainer[0]);
+    //for (int i = 0; i < Nodes.Count; i++) {
+    //  List<NodeLinkData> connections = _container.NodeLinks.Where(x => x.BaseNodeId == Nodes[i].Id).ToList();
+    //  for (int j = 0; j < connections.Count; j++) {
+    //    string targetNodeId = connections[j].TargetNodeId;
+    //    TerrainNodeView targetNode = Nodes.First(x => x.Id == targetNodeId);
+    //    LinkNodes(Nodes[i].outputContainer[j].Q<Port>(), (Port)targetNode.inputContainer[0]);
 
-        targetNode.SetPosition(
-          new Rect(_container.TerrainNodeDatas.First(x => x.NodeId == targetNode.Id).Position, _targetGraphView.defaultNodeSize)
-        );
-      }
-    }
+    //    targetNode.SetPosition(
+    //      new Rect(_container.TerrainNodeDatas.First(x => x.NodeId == targetNode.Id).Position, _targetGraphView.defaultNodeSize)
+    //    );
+    //  }
+    //}
   }
 
-  private void LinkNodes(Port output, Port input) {
-    Edge tempEdge = new Edge { output = output, input = input };
-    tempEdge.input.Connect(tempEdge);
-    tempEdge.output.Connect(tempEdge);
-    _targetGraphView.Add(tempEdge);
-  }
+  //private void LinkNodes(Port output, Port input) {
+  //  Edge tempEdge = new Edge { output = output, input = input };
+  //  tempEdge.input.Connect(tempEdge);
+  //  tempEdge.output.Connect(tempEdge);
+  //  _targetGraphView.Add(tempEdge);
+  //}
 }

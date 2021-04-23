@@ -51,8 +51,6 @@ public class TerrainGraphPortInfo {
 
 public class TerrainNodeView : Node {
 
-  public string Id;
-
   public string Content;
 
   public bool EntryPoint;
