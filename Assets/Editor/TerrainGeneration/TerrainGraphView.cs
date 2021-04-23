@@ -73,6 +73,7 @@ public class TerrainGraphView : GraphView {
 
   internal void buildGraph(TerrainGenerator tg) {
     this.terrainGenerator = tg;
+    this.CreateNode(tg.terrainGraph.resultNode, Vector2.zero);
     foreach (TerrainNode terrainNode in terrainGenerator.terrainGraph.terrainNodes) {
       this.CreateNode(terrainNode, Vector2.zero);
     }
@@ -129,29 +130,14 @@ public class TerrainGraphView : GraphView {
   public void CreateNode(TerrainNode terrainNode, Vector2 position) {
     switch (terrainNode) {
       case ResultNode resultNode:
-        TerrainNodeView node = CreateResultNodeView(resultNode, position);
+        TerrainNodeView node = new ResultNodeView(terrainGenerator, resultNode);
         node.SetPosition(new Rect(position: position, defaultNodeSize));
         AddElement(node);
         break;
     }
   }
 
-  internal TerrainNodeView CreateResultNodeView(ResultNode resultNode, Vector2 position) {
-
-    ResultNodeView result = new ResultNodeView(terrainGenerator, resultNode);
-
-    result.SetPosition(new Rect(position: position, defaultNodeSize));
-
-    return result;
-  }
-
-  public void CreateNode(string nodeName, Vector2 position) {
-    TerrainNodeView node = CreateTerrainNode(nodeName, position);
-    node.SetPosition(new Rect(position: position, defaultNodeSize));
-    AddElement(node);
-  }
-
-  internal TerrainNodeView CreateTerrainNode(string nodeName, Vector2 position) {
+  internal TerrainNodeView CreateTerrainNodeOld(string nodeName, Vector2 position) {
     TerrainNodeView terrainNode = new TerrainNodeView {
       title = nodeName,
       Content = nodeName,

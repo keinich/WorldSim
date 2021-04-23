@@ -41,9 +41,6 @@ public class NodeSearchWindow : ScriptableObject, ISearchWindowProvider {
       case HeightmapInputNodeView heightmapInputNode:
         graphView.AddNode(heightmapInputNode, localMousePosition);
         return true;
-      case TerrainNodeView terrainNode:
-        graphView.CreateNode("Erosion", localMousePosition);
-        return true;
       default:
         return false;
     }

@@ -14,6 +14,9 @@ public class HeightMapInputNode : TerrainNode {
 
   private float[] Generate(int size) {
     float[] result = new float[size * size];
+    if (heightMap is null) {
+      return result;
+    }
     int textureWidth = heightMap.width;
     int textureHeight = heightMap.height;
     for (int i = 0; i < size; i++) {

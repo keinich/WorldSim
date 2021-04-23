@@ -1,15 +1,17 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 [Serializable]
 public class TerrainGraph {
 
+  public ResultNode resultNode;
+
   public TerrainGraph() {
-    ResultNode resultNode = new ResultNode();
     terrainNodes = new List<TerrainNode>();
-    terrainNodes.Add(resultNode);
+    resultNode = new ResultNode();
   }
 
-  public List<TerrainNode> terrainNodes; 
-
+  public List<TerrainNode> terrainNodes;
 }

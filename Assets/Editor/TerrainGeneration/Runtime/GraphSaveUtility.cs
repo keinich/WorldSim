@@ -109,7 +109,7 @@ public class GraphSaveUtility {
 
   private void CreateNodes() {
     foreach (TerrainNodeData nodeData in _container.TerrainNodeDatas) {
-      TerrainNodeView tempNode = _targetGraphView.CreateTerrainNode(nodeData.Content, Vector2.zero);
+      TerrainNodeView tempNode = _targetGraphView.CreateTerrainNodeOld(nodeData.Content, Vector2.zero);
       tempNode.Id = nodeData.NodeId;
       _targetGraphView.AddElement(tempNode);
 
