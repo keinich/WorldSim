@@ -1,25 +1,8 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Reflection;
-using UnityEditor;
 using UnityEditor.Experimental.GraphView;
-using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public enum TerrainGraphPortType {
-  HeightInput,
-  HeightOutput
-}
-
 public class MyIEdgeConnectorListener : IEdgeConnectorListener {
-
-  TerrainGraphPortType terrainGraphPortType;
-
-  public MyIEdgeConnectorListener(TerrainGraphPortType pt) {
-    terrainGraphPortType = pt;
-  }
 
   public void OnDrop(GraphView graphView, Edge edge) {
     Port inputPort = edge.input;
@@ -39,17 +22,7 @@ public class MyIEdgeConnectorListener : IEdgeConnectorListener {
 
 }
 
-public class TerrainGraphPortInfo {
-
-  TerrainGraphPortType terrainPortType;
-
-  public TerrainGraphPortInfo(TerrainGraphPortType pt) {
-    terrainPortType = pt;
-  }
-
-}
-
-public class TerrainNodeView : Node {
+public class TerrainNodeView: Node  {
 
   public string Content;
 
@@ -59,21 +32,21 @@ public class TerrainNodeView : Node {
 
   public Port GeneratePort(Direction portDirection, Port.Capacity capacity = Port.Capacity.Single) {
     Port result = this.InstantiatePort(Orientation.Horizontal, portDirection, capacity, type: typeof(float));
-    result.AddManipulator(new EdgeConnector<Edge>(new MyIEdgeConnectorListener(TerrainGraphPortType.HeightInput)));
+    result.AddManipulator(new EdgeConnector<Edge>(new MyIEdgeConnectorListener()));
     return result;
   }
 
   public Port GeneratePort(Direction portDirection, HeightmapOutput heightmapOutput, Port.Capacity capacity = Port.Capacity.Single) {
     Port result = this.InstantiatePort(Orientation.Horizontal, portDirection, capacity, type: typeof(float));
     result.userData = heightmapOutput;
-    result.AddManipulator(new EdgeConnector<Edge>(new MyIEdgeConnectorListener(TerrainGraphPortType.HeightInput)));
+    result.AddManipulator(new EdgeConnector<Edge>(new MyIEdgeConnectorListener()));
     return result;
   }
 
   public Port GeneratePort(Direction portDirection, HeightmapOutputReceiver heightmapInput, Port.Capacity capacity = Port.Capacity.Single) {
     Port result = this.InstantiatePort(Orientation.Horizontal, portDirection, capacity, type: typeof(float));
     result.userData = heightmapInput;
-    result.AddManipulator(new EdgeConnector<Edge>(new MyIEdgeConnectorListener(TerrainGraphPortType.HeightInput)));
+    result.AddManipulator(new EdgeConnector<Edge>(new MyIEdgeConnectorListener()));
     return result;
   }
 
@@ -94,5 +67,11 @@ public class TerrainNodeView : Node {
     base.SetPosition(newPos);
     terrainNode.position = newPos.position;
   }
+
+}
+
+public class TerrainNodeView<T> : TerrainNodeView where T : TerrainNode {
+
+  T terrainNodeCasted => (T)terrainNode;
 
 }

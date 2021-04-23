@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -14,7 +15,7 @@ public class TerrainGraphView : GraphView {
   public Blackboard blackboard;
   public List<ExposedProperty> exposedProperties = new List<ExposedProperty>();
   private NodeSearchWindow nodeSearchWindow;
-  private TerrainGenerator terrainGenerator;
+  public TerrainGenerator terrainGenerator;
 
   public TerrainGraphView(EditorWindow editorWindow) {
 
@@ -31,6 +32,22 @@ public class TerrainGraphView : GraphView {
 
     //AddElement(GenerateEntryPointNode());
     AddSearchWindow(editorWindow);
+
+    graphViewChanged = TerrainGraphViewChanged;
+  }
+
+  private GraphViewChange TerrainGraphViewChanged(GraphViewChange graphViewChange) {
+    if (graphViewChange.elementsToRemove is null) {
+      return graphViewChange;
+    }
+    foreach (GraphElement ge in graphViewChange.elementsToRemove) {
+      if (!(typeof(Node).IsAssignableFrom(ge.GetType()))) {
+        continue;
+      }
+      TerrainNodeView terrainNodeView = (TerrainNodeView)ge;
+      terrainGenerator.terrainGraph.terrainNodes.Remove(terrainNodeView.terrainNode);
+    }
+    return graphViewChange;
   }
 
   public void ClearBlackBoardAndExposedProperties() {
@@ -73,7 +90,7 @@ public class TerrainGraphView : GraphView {
 
   internal void buildGraph(TerrainGenerator tg) {
     this.terrainGenerator = tg;
-    
+
     if (tg.terrainGraph.resultNode is null) {
       tg.terrainGraph.resultNode = ScriptableObject.CreateInstance<ResultNode>();
     }
@@ -127,30 +144,6 @@ public class TerrainGraphView : GraphView {
     return compatiblePorts;
   }
 
-  private TerrainNodeView GenerateEntryPointNode() {
-
-    TerrainNodeView node = new TerrainNodeView() {
-      title = "Start",
-      Content = "ENTRYPOINT",
-      EntryPoint = true
-    };
-
-    //Port generatedPort = GeneratePort(node, Direction.Output);
-    //generatedPort.portName = "Next";
-    //node.outputContainer.Add(generatedPort);
-
-    node.capabilities &= ~Capabilities.Movable;
-    node.capabilities &= ~Capabilities.Deletable;
-
-    node.RefreshExpandedState();
-    node.RefreshPorts();
-
-    node.SetPosition(new Rect(x: 100, y: 200, width: 100, height: 150));
-
-    return node;
-
-  }
-
   public void AddNode(TerrainNodeView node, Vector2 position) {
     terrainGenerator.terrainGraph.terrainNodes.Add(node.terrainNode);
     node.SetPosition(new Rect(position: position, defaultNodeSize));
@@ -158,18 +151,23 @@ public class TerrainGraphView : GraphView {
   }
 
   public void CreateNode(TerrainNode terrainNode, Vector2 position) {
-    switch (terrainNode) {
-      case ResultNode resultNode:
-        TerrainNodeView node = new ResultNodeView(terrainGenerator, resultNode);
-        node.SetPosition(new Rect(position: position, defaultNodeSize));
-        AddElement(node);
-        break;
-      case HeightMapInputNode heightmapInputNode:
-        HeightmapInputNodeView nodeView = new HeightmapInputNodeView(heightmapInputNode);
-        nodeView.SetPosition(new Rect(position: position, defaultNodeSize));
-        AddElement(nodeView);
-        break;
+    TerrainNodeView nodeView1 = CreateTerrainNodeView(terrainNode);
+    
+    nodeView1.SetPosition(new Rect(position: position, defaultNodeSize));
+    AddElement(nodeView1);
+    return;
+  }
+
+  private TerrainNodeView CreateTerrainNodeView(TerrainNode terrainNode) {
+    IEnumerable<Type> terrainNodeViewTypes = Assembly.GetExecutingAssembly().GetTypes().Where((t) => t.BaseType.BaseType == typeof(TerrainNodeView));
+    foreach (Type terrainNodeViewType in terrainNodeViewTypes) {
+      Type typeArgument = terrainNodeViewType.BaseType.GetGenericArguments()[0];
+      if (typeArgument == terrainNode.GetType()) {
+        object[] p = { terrainGenerator, terrainNode };
+        return (TerrainNodeView)Activator.CreateInstance(terrainNodeViewType, p);
+      }
     }
+    return null;
   }
 
   internal TerrainNodeView CreateTerrainNodeOld(string nodeName, Vector2 position) {

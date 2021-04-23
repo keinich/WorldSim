@@ -24,7 +24,7 @@ public class NodeSearchWindow : ScriptableObject, ISearchWindowProvider {
       new SearchTreeEntry(new GUIContent("Beach")) { level = 2},
       new SearchTreeGroupEntry(new GUIContent("Input"),level:1),
       new SearchTreeEntry(new GUIContent("Heightmap")) {
-        userData=new HeightmapInputNodeView(ScriptableObject.CreateInstance<HeightMapInputNode>()), level=2
+        userData=new HeightmapInputNodeView(graphView.terrainGenerator, ScriptableObject.CreateInstance<HeightMapInputNode>()), level=2
       }
     };
 

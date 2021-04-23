@@ -4,14 +4,14 @@ using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class HeightmapInputNodeView : TerrainNodeView {
+public class HeightmapInputNodeView : TerrainNodeView<HeightMapInputNode> {
 
   public class TestTextureContainer : ScriptableObject {
     public string texture;
     public Texture2D texture2;
   }
 
-  public HeightmapInputNodeView(HeightMapInputNode heightMapInputNode) {
+  public HeightmapInputNodeView(TerrainGenerator tg, HeightMapInputNode heightMapInputNode) {
     terrainNode = heightMapInputNode;
     title = "Heightmap Input";
 

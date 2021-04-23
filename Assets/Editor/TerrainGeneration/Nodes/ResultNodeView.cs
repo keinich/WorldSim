@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class ResultNodeView : TerrainNodeView {
+public class ResultNodeView : TerrainNodeView<ResultNode> {
 
   public ResultNodeView(TerrainGenerator tg, ResultNode resultNode) {
 

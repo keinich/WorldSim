@@ -6,7 +6,6 @@ using UnityEngine;
 public class HeightmapOutput {
   public string name;
   public TerrainNode parent;
-  public Func<int, float[]> generator;
 
   public HeightmapOutput(TerrainNode p) {
     parent = p;
@@ -33,11 +32,11 @@ public class TerrainNode : ScriptableObject {
 
   [SerializeField]
   public string id {
-    get { 
+    get {
       if (string.IsNullOrEmpty(_id)) {
         _id = Guid.NewGuid().ToString();
       }
-      return _id; 
+      return _id;
     }
     set { _id = value; }
   }
@@ -46,5 +45,9 @@ public class TerrainNode : ScriptableObject {
 
   public List<HeightmapOutput> heightmapOutputs = new List<HeightmapOutput>();
   public List<HeightmapOutputReceiver> heightmapInputs = new List<HeightmapOutputReceiver>();
+
+  public virtual float[] Generate(HeightmapOutput output, int mapSize) {
+    return new float[mapSize * mapSize];
+  }
 
 }

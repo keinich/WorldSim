@@ -9,10 +9,10 @@ public class HeightMapInputNode : TerrainNode {
   public string outputNodeId;
 
   public HeightMapInputNode() {
-    heightmapOutputs.Add(new HeightmapOutput(this) { name = "Heightmap Output", generator = Generate });
+    heightmapOutputs.Add(new HeightmapOutput(this) { name = "Heightmap Output" });
   }
 
-  private float[] Generate(int size) {
+  public override float[] Generate(HeightmapOutput output, int size) {
     float[] result = new float[size * size];
     if (heightMap is null) {
       return result;
