@@ -90,4 +90,9 @@ public class TerrainNodeView : Node {
     }
   }
 
+  public override void SetPosition(Rect newPos) {
+    base.SetPosition(newPos);
+    terrainNode.position = newPos.position;
+  }
+
 }

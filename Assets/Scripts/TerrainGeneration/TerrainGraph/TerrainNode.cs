@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+[Serializable]
 public class HeightmapOutput {
   public string name;
   public TerrainNode parent;
@@ -13,6 +14,7 @@ public class HeightmapOutput {
 
 }
 
+[Serializable]
 public class HeightmapOutputReceiver {
   public TerrainNode parent;
   public string name;
@@ -39,6 +41,8 @@ public class TerrainNode : ScriptableObject {
     }
     set { _id = value; }
   }
+
+  public Vector2 position;
 
   public List<HeightmapOutput> heightmapOutputs = new List<HeightmapOutput>();
   public List<HeightmapOutputReceiver> heightmapInputs = new List<HeightmapOutputReceiver>();

@@ -29,7 +29,7 @@ public class TerrainGraphView : GraphView {
     Insert(index: 0, grid);
     grid.StretchToParentSize();
 
-    AddElement(GenerateEntryPointNode());
+    //AddElement(GenerateEntryPointNode());
     AddSearchWindow(editorWindow);
   }
 
@@ -73,13 +73,40 @@ public class TerrainGraphView : GraphView {
 
   internal void buildGraph(TerrainGenerator tg) {
     this.terrainGenerator = tg;
-    if(tg.terrainGraph.resultNode is null) {
+    
+    if (tg.terrainGraph.resultNode is null) {
       tg.terrainGraph.resultNode = ScriptableObject.CreateInstance<ResultNode>();
     }
-    this.CreateNode(tg.terrainGraph.resultNode, Vector2.zero);
+    this.CreateNode(tg.terrainGraph.resultNode, tg.terrainGraph.resultNode.position);
     foreach (TerrainNode terrainNode in terrainGenerator.terrainGraph.terrainNodes) {
-      this.CreateNode(terrainNode, Vector2.zero);
+      this.CreateNode(terrainNode, terrainNode.position);
     }
+    GenerateConnections(tg.terrainGraph.resultNode);
+    foreach (TerrainNode terrainNode in terrainGenerator.terrainGraph.terrainNodes) {
+      GenerateConnections(terrainNode);
+    }
+  }
+
+  private void GenerateConnections(TerrainNode terrainNode) {
+    foreach (HeightmapOutputReceiver heightmapInput in terrainNode.heightmapInputs) {
+      HeightmapOutput heightmapOutput = heightmapInput.output;
+      if (heightmapOutput is null) continue;
+      TerrainNode outputNode = heightmapOutput.parent;
+      TerrainNodeView outputNodeView = this.nodes.Cast<TerrainNodeView>().Where((n) => n.terrainNode.id == outputNode.id).First();
+      TerrainNodeView inputNodeView = this.nodes.Cast<TerrainNodeView>().Where((n) => n.terrainNode.id == terrainNode.id).First();
+      if (outputNodeView is null) continue;
+      Port outputPort = outputNodeView.outputContainer[0].Query<Port>().Build().Where((p) => p.portName == heightmapOutput.name).First();
+      //Port outputPort2 = outputNodeView.outputContainer[0].Q<Port>(heightmapOutput.name);
+      Port inputPort = inputNodeView.inputContainer[0].Query<Port>().Build().Where((p) => p.portName == heightmapInput.name).First();
+      LinkNodes(outputPort, inputPort);
+    }
+  }
+
+  private void LinkNodes(Port output, Port input) {
+    Edge tempEdge = new Edge { output = output, input = input };
+    tempEdge.input.Connect(tempEdge);
+    tempEdge.output.Connect(tempEdge);
+    this.Add(tempEdge);
   }
 
   private void AddSearchWindow(EditorWindow editorWindow) {
