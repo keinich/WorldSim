@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using UnityEngine;
 
 public class TerrainGenerator : MonoBehaviour {
+
+  public TerrainGraph terrainGraph;
 
   public bool printTimers;
   public bool autoUpdate = true;
@@ -58,6 +61,17 @@ public class TerrainGenerator : MonoBehaviour {
 
   private void Start() {
     GenerateHeightMap();
+  }
+
+  public void GenerateFromGraph() {
+    ResultNode resultNode = (ResultNode)terrainGraph.terrainNodes.Where((x) => x.GetType() == typeof(ResultNode)).First();
+    map = resultNode.GenerateHeightMap(mapSize);
+    Terrain terrain = FindObjectOfType<Terrain>();
+    terrain.terrainData.heightmapResolution = mapSize;
+    float[,] heightMap = GetTerrainHeightMap(map);
+    terrain.terrainData.SetHeights(0, 0, heightMap);
+    terrain.drawInstanced = false;
+    terrain.Flush();
   }
 
   public void CreateTerrain() {

@@ -13,7 +13,7 @@ public class GraphSaveUtility {
   private TerrainGraphContainer _container;
 
   private List<Edge> Edges => _targetGraphView.edges.ToList();
-  private List<TerrainNode> Nodes => _targetGraphView.nodes.ToList().Cast<TerrainNode>().ToList();
+  private List<TerrainNodeView> Nodes => _targetGraphView.nodes.ToList().Cast<TerrainNodeView>().ToList();
 
   public static GraphSaveUtility GetInstance(TerrainGraphView targetGraphView) {
 
@@ -48,8 +48,8 @@ public class GraphSaveUtility {
 
     Edge[] connectedPorts = Edges.Where(x => x.input.node != null).ToArray();
     for (int i = 0; i < connectedPorts.Length; i++) {
-      TerrainNode outputNode = connectedPorts[i].output.node as TerrainNode;
-      TerrainNode inputNode = connectedPorts[i].input.node as TerrainNode;
+      TerrainNodeView outputNode = connectedPorts[i].output.node as TerrainNodeView;
+      TerrainNodeView inputNode = connectedPorts[i].input.node as TerrainNodeView;
 
       terrainGraphContainer.NodeLinks.Add(
         new NodeLinkData {
@@ -60,7 +60,7 @@ public class GraphSaveUtility {
       );
     }
 
-    foreach (TerrainNode terrainNode in Nodes.Where(node => !node.EntryPoint)) {
+    foreach (TerrainNodeView terrainNode in Nodes.Where(node => !node.EntryPoint)) {
       terrainGraphContainer.TerrainNodeDatas.Add(
         new TerrainNodeData {
           NodeId = terrainNode.Id,
@@ -99,7 +99,7 @@ public class GraphSaveUtility {
   private void ClearGraph() {
     Nodes.Find(x => x.EntryPoint).Id = _container.NodeLinks[0].BaseNodeId;
 
-    foreach (TerrainNode node in Nodes) {
+    foreach (TerrainNodeView node in Nodes) {
       if (node.EntryPoint) continue;
       Edges.Where(x => x.input.node == node).ToList().ForEach(edge => _targetGraphView.RemoveElement(edge));
 
@@ -109,7 +109,7 @@ public class GraphSaveUtility {
 
   private void CreateNodes() {
     foreach (TerrainNodeData nodeData in _container.TerrainNodeDatas) {
-      TerrainNode tempNode = _targetGraphView.CreateTerrainNode(nodeData.Content, Vector2.zero);
+      TerrainNodeView tempNode = _targetGraphView.CreateTerrainNode(nodeData.Content, Vector2.zero);
       tempNode.Id = nodeData.NodeId;
       _targetGraphView.AddElement(tempNode);
 
@@ -123,7 +123,7 @@ public class GraphSaveUtility {
       List<NodeLinkData> connections = _container.NodeLinks.Where(x => x.BaseNodeId == Nodes[i].Id).ToList();
       for (int j = 0; j < connections.Count; j++) {
         string targetNodeId = connections[j].TargetNodeId;
-        TerrainNode targetNode = Nodes.First(x => x.Id == targetNodeId);
+        TerrainNodeView targetNode = Nodes.First(x => x.Id == targetNodeId);
         LinkNodes(Nodes[i].outputContainer[j].Q<Port>(), (Port)targetNode.inputContainer[0]);
 
         targetNode.SetPosition(

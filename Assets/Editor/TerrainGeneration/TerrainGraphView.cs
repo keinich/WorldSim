@@ -14,6 +14,8 @@ public class TerrainGraphView : GraphView {
   public Blackboard blackboard;
   public List<ExposedProperty> exposedProperties = new List<ExposedProperty>();
   private NodeSearchWindow nodeSearchWindow;
+  private TerrainGenerator terrainGenerator;
+
   public TerrainGraphView(EditorWindow editorWindow) {
 
     styleSheets.Add(Resources.Load<StyleSheet>(path: "TerrainGraph"));
@@ -69,6 +71,13 @@ public class TerrainGraphView : GraphView {
 
   }
 
+  internal void buildGraph(TerrainGenerator tg) {
+    this.terrainGenerator = tg;
+    foreach (TerrainNode terrainNode in terrainGenerator.terrainGraph.terrainNodes) {
+      this.CreateNode(terrainNode, Vector2.zero);
+    }
+  }
+
   private void AddSearchWindow(EditorWindow editorWindow) {
     nodeSearchWindow = ScriptableObject.CreateInstance<NodeSearchWindow>();
     nodeSearchWindow.Init(editorWindow, this);
@@ -87,22 +96,18 @@ public class TerrainGraphView : GraphView {
     return compatiblePorts;
   }
 
-  private Port GeneratePort(TerrainNode node, Direction portDirection, Port.Capacity capacity = Port.Capacity.Single) {
-    return node.InstantiatePort(Orientation.Horizontal, portDirection, capacity, type: typeof(float));
-  }
+  private TerrainNodeView GenerateEntryPointNode() {
 
-  private TerrainNode GenerateEntryPointNode() {
-
-    TerrainNode node = new TerrainNode() {
+    TerrainNodeView node = new TerrainNodeView() {
       title = "Start",
       Id = Guid.NewGuid().ToString(),
       Content = "ENTRYPOINT",
       EntryPoint = true
     };
 
-    Port generatedPort = GeneratePort(node, Direction.Output);
-    generatedPort.portName = "Next";
-    node.outputContainer.Add(generatedPort);
+    //Port generatedPort = GeneratePort(node, Direction.Output);
+    //generatedPort.portName = "Next";
+    //node.outputContainer.Add(generatedPort);
 
     node.capabilities &= ~Capabilities.Movable;
     node.capabilities &= ~Capabilities.Deletable;
@@ -116,18 +121,44 @@ public class TerrainGraphView : GraphView {
 
   }
 
-  public void CreateNode(string nodeName, Vector2 position) {
-    AddElement(CreateTerrainNode(nodeName, position));
+  public void AddNode(TerrainNodeView node, Vector2 position) {
+    node.SetPosition(new Rect(position: position, defaultNodeSize));
+    AddElement(node);
   }
 
-  internal TerrainNode CreateTerrainNode(string nodeName, Vector2 position) {
-    TerrainNode terrainNode = new TerrainNode {
+  public void CreateNode(TerrainNode terrainNode, Vector2 position) {
+    switch (terrainNode) {
+      case ResultNode resultNode:
+        TerrainNodeView node = CreateResultNodeView(resultNode, position);
+        node.SetPosition(new Rect(position: position, defaultNodeSize));
+        AddElement(node);
+        break;
+    }
+  }
+
+  internal TerrainNodeView CreateResultNodeView(ResultNode resultNode, Vector2 position) {
+
+    ResultNodeView result = new ResultNodeView(terrainGenerator, resultNode);
+
+    result.SetPosition(new Rect(position: position, defaultNodeSize));
+
+    return result;
+  }
+
+  public void CreateNode(string nodeName, Vector2 position) {
+    TerrainNodeView node = CreateTerrainNode(nodeName, position);
+    node.SetPosition(new Rect(position: position, defaultNodeSize));
+    AddElement(node);
+  }
+
+  internal TerrainNodeView CreateTerrainNode(string nodeName, Vector2 position) {
+    TerrainNodeView terrainNode = new TerrainNodeView {
       title = nodeName,
       Content = nodeName,
       Id = Guid.NewGuid().ToString()
     };
 
-    Port inputPort = GeneratePort(terrainNode, Direction.Input, Port.Capacity.Multi);
+    Port inputPort = terrainNode.GeneratePort(Direction.Input, Port.Capacity.Multi);
     inputPort.portName = "Input";
     terrainNode.inputContainer.Add(inputPort);
 
@@ -154,8 +185,8 @@ public class TerrainGraphView : GraphView {
     return terrainNode;
   }
 
-  public void AddChoicePort(TerrainNode terrainNode, string overridenPortName = "") {
-    Port generatedPort = GeneratePort(terrainNode, Direction.Output);
+  public void AddChoicePort(TerrainNodeView terrainNode, string overridenPortName = "") {
+    Port generatedPort = terrainNode.GeneratePort(Direction.Output);
 
     VisualElement oldLabel = generatedPort.contentContainer.Q<Label>("type");
     generatedPort.contentContainer.Remove(oldLabel);
@@ -182,7 +213,7 @@ public class TerrainGraphView : GraphView {
     terrainNode.RefreshPorts();
   }
 
-  private void RemovePort(TerrainNode terrainNode, Port generatedPort) {
+  private void RemovePort(TerrainNodeView terrainNode, Port generatedPort) {
     IEnumerable<Edge> targetEdges = edges.ToList().Where(x => x.output.portName == generatedPort.portName && x.output.node == generatedPort.node);
 
     if (targetEdges.Any()) {

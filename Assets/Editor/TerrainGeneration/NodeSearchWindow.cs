@@ -20,8 +20,10 @@ public class NodeSearchWindow : ScriptableObject, ISearchWindowProvider {
     List<SearchTreeEntry> tree = new List<SearchTreeEntry> {
       new SearchTreeGroupEntry(new GUIContent("Create Elements"),level:0),
       new SearchTreeGroupEntry(new GUIContent("Natural"),level:1),
-      new SearchTreeEntry(new GUIContent("Erosion")) {userData=new TerrainNode(), level=2},
-      new SearchTreeEntry(new GUIContent("Beach")) { level = 2}
+      new SearchTreeEntry(new GUIContent("Erosion")) {userData=new TerrainNodeView(), level=2},
+      new SearchTreeEntry(new GUIContent("Beach")) { level = 2},
+      new SearchTreeGroupEntry(new GUIContent("Input"),level:1),
+      new SearchTreeEntry(new GUIContent("Heightmap")) {userData=new HeightmapInputNodeView(new HeightMapInputNode()), level=2}
     };
 
     return tree;
@@ -36,7 +38,10 @@ public class NodeSearchWindow : ScriptableObject, ISearchWindowProvider {
     var localMousePosition = graphView.contentViewContainer.WorldToLocal(worldMousePosition);
 
     switch (SearchTreeEntry.userData) {
-      case TerrainNode terrainNode:
+      case HeightmapInputNodeView heightmapInputNode:
+        graphView.AddNode(heightmapInputNode, localMousePosition);
+        return true;
+      case TerrainNodeView terrainNode:
         graphView.CreateNode("Erosion", localMousePosition);
         return true;
       default:

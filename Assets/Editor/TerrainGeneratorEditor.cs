@@ -20,6 +20,11 @@ public class MeshEditor : Editor {
       terrainGenerator.ConstructTerrain();
     }
 
+    if (GUILayout.Button("Show Graph")) {
+      //TerrainGraph.ShowWindow(terrainGenerator);
+      TerrainGraphEditorWindow.ShowWindow(terrainGenerator);
+    }
+
     //string numIterationsString = terrainGenerator.numErosionIterations.ToString();
     //if (terrainGenerator.numErosionIterations >= 1000) {
     //  numIterationsString = (terrainGenerator.numErosionIterations / 1000) + "k";
