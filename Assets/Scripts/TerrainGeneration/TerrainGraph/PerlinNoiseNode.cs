@@ -9,7 +9,7 @@ public class PerlinNoiseNode : TerrainNode {
   public PerlinNoiseNode() {
     heightmapInputs.Add(new HeightmapOutputReceiver(this) { name = "HeightMap Input" });
     heightmapInputs.Add(new HeightmapOutputReceiver(this) { name = "Mask" });
-    heightmapOutputs.Add(new HeightmapOutput(this) { name = "HeightMap Output" });
+    heightmapOutputs.Add(new HeightmapOutput(this) { name = "Heightmap Output" });
     nodeName = "Perlin Noise";
     perlinNoiseParams = new PerlinNoiseParams();
   }

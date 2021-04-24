@@ -34,7 +34,7 @@ public class TextureField {
     preeviewImage.image = textureHolderHack.texture;
 
     heightMapPropertyField.RegisterValueChangeCallback(t => {
-      preeviewImage.image = GetPreviewImage(textureHolderHack.texture, 100);
+      preeviewImage.image = GetPreviewImage(textureHolderHack.texture, 200);
       onValueChanged.Invoke(textureHolderHack.texture);
     });
     heightMapPropertyField.Bind(serializedObject);

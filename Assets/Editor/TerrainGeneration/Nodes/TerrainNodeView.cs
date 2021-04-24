@@ -23,8 +23,8 @@ public class MyIEdgeConnectorListener : IEdgeConnectorListener {
 
 }
 
-public abstract class TerrainNodeView: Node  {
-  
+public abstract class TerrainNodeView : Node {
+
   public bool EntryPoint;
 
   public TerrainNode terrainNode;
@@ -41,6 +41,15 @@ public abstract class TerrainNodeView: Node  {
     styleSheets.Add(Resources.Load<StyleSheet>(path: "Node"));
 
     InitProperties();
+
+    HeightmapOutput heightmapOutput = tn.heightmapOutputs.Find((x) => x.name == "Heightmap Output");
+    if (!(heightmapOutput is null)) {
+      Image previewImage = new Image();
+      float[,] previewMap = tn.Generate(heightmapOutput, tg.mapSize);
+      Texture2D previewTexture = TextureGenerator.TextureFromHeightMap(previewMap);
+      TextureField textureField = new TextureField(previewTexture, (t) => previewTexture = t);
+      mainContainer.Add(textureField.GetVisualElement());
+    }
 
     RefreshExpandedState();
     RefreshPorts();

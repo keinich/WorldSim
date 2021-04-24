@@ -31,6 +31,9 @@ public class NodeSearchWindow : ScriptableObject, ISearchWindowProvider {
       },
       new SearchTreeEntry(new GUIContent("Blur")) {
         userData=new BlurNodeView(graphView.terrainGenerator, CreateInstance<BlurNode>()), level = 2
+      },
+      new SearchTreeEntry(new GUIContent("Height Curve")) {
+        userData=new HeightCurveNodeView(graphView.terrainGenerator, CreateInstance<HeightCurveNode>()), level = 2
       }
     };
 
