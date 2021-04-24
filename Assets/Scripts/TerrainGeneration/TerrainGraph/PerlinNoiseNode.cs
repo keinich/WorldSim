@@ -14,9 +14,9 @@ public class PerlinNoiseNode : TerrainNode {
     perlinNoiseParams = new PerlinNoiseParams();
   }
 
-  public override float[] Generate(HeightmapOutput output, int mapSize) {
-    float[] inputMap = GetInput(mapSize, "HeightMap Input");
-    float[] maskMap = GetInput(mapSize, "Mask", 1f);  
+  public override float[,] Generate(HeightmapOutput output, int mapSize) {
+    float[,] inputMap = GetInput(mapSize, "HeightMap Input");
+    float[,] maskMap = GetInput(mapSize, "Mask", 1f);  
     return PerlinNoiseGenerator.Apply(inputMap, maskMap, perlinNoiseParams);
   }
 }

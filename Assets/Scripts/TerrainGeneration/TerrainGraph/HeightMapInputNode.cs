@@ -13,8 +13,8 @@ public class HeightMapInputNode : TerrainNode {
     nodeName = "HeightMap Input";
   }
 
-  public override float[] Generate(HeightmapOutput output, int size) {
-    float[] result = new float[size * size];
+  public override float[,] Generate(HeightmapOutput output, int size) {
+    float[,] result = new float[size, size];
     if (heightMap is null) {
       return result;
     }
@@ -24,7 +24,7 @@ public class HeightMapInputNode : TerrainNode {
       for (int j = 0; j < size; j++) {
         int textureX = (int)(((float)i / size) * textureWidth);
         int textureY = (int)(((float)j / size) * textureHeight);
-        result[j * size + i] = heightMap.GetPixel(textureX, textureY).grayscale;
+        result[i, j] = heightMap.GetPixel(textureX, textureY).grayscale;
       }
     }
     return result;

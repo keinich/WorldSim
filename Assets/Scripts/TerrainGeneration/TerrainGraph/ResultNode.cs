@@ -3,20 +3,25 @@ using System;
 [Serializable]
 public class ResultNode : TerrainNode {
 
-  HeightmapOutputReceiver heightmapInput;
+  public float heightScale;
 
   public ResultNode() {
-    heightmapInput = new HeightmapOutputReceiver(this) { name = "Heightmap Input" };
-    heightmapInputs.Add(heightmapInput);
+    heightmapInputs.Add(new HeightmapOutputReceiver(this) { name = "Heightmap Input" });
     nodeName = "Result";
   }
 
-  public float[] GenerateHeightMap(int mapSize) {
-    HeightmapOutput output = heightmapInput.output;
-    if (output is null) {
-      return new float[mapSize];
+  public float[,] GenerateHeightMap(int mapSize) {
+
+    float[,] input = GetInput(mapSize, "Heightmap Input");
+    float[,] result = new float[mapSize, mapSize];
+
+    for (int x = 0; x < mapSize; x++) {
+      for (int y = 0; y < mapSize; y++) {
+        result[x, y] = heightScale * input[x, y];
+      }
     }
-    return output.parent.Generate(output, mapSize);
+
+    return result;
   }
 
 }

@@ -43,12 +43,13 @@ public static class TextureGenerator {
     return TextureFromColorMap(colorMap, width, height);
   }
 
-  public static float[] ConvertTextureToHeightMap(Texture2D texture) {
+  public static float[,] ConvertTextureToHeightMap(Texture2D texture) {
     int width = texture.width;
-    float[] result = new float[width * width];
+    int height = texture.height;
+    float[,] result = new float[width , height];
     for (int i = 0; i < width; i++) {
-      for (int j = 0; j < width; j++) {
-        result[i * width + j] = texture.GetPixel(i, j).grayscale;
+      for (int j = 0; j < height; j++) {
+        result[i,j] = texture.GetPixel(i, j).grayscale;
       }
     }
     return result;

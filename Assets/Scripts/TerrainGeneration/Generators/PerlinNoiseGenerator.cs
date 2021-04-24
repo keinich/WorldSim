@@ -13,9 +13,10 @@ public class PerlinNoiseParams {
 
 public static class PerlinNoiseGenerator {
 
-  public static float[] Apply(float[] inputMap, float[] maskMap, PerlinNoiseParams p) {
-    float[] map = new float[inputMap.Length];
-    int mapSize = (int)Mathf.Sqrt(inputMap.Length);
+  public static float[,] Apply(float[,] inputMap, float[,] maskMap, PerlinNoiseParams p) {
+    float[,] map = new float[inputMap.GetLength(0), inputMap.GetLength(1)];
+    int mapSizeX = inputMap.GetLength(0);
+    int mapSizeY = inputMap.GetLength(1);
 
     int seedUsed = (p.randomizeSeed) ? Random.Range(-10000, 10000) : p.seed;
     var prng = new System.Random(seedUsed);
@@ -28,23 +29,23 @@ public static class PerlinNoiseGenerator {
     float minValue = float.MaxValue;
     float maxValue = float.MinValue;
 
-    for (int y = 0; y < mapSize; y++) {
-      for (int x = 0; x < mapSize; x++) {
+    for (int x = 0; x < mapSizeX; x++) {
+      for (int y = 0; y < mapSizeY; y++) {
         float noiseValue = 0;
         float scale = p.initialScale;
         float weight = 1;
         for (int i = 0; i < p.numOctaves; i++) {
-          Vector2 percent = offsets[i] + new Vector2(x / (float)mapSize, y / (float)mapSize) * scale;
-          float perlinNoiseValue = Mathf.PerlinNoise(percent.x, percent.y);
-          perlinNoiseValue = (perlinNoiseValue - 0.5f) * weight;
+          Vector2 percent = offsets[i] + new Vector2(x / (float)mapSizeX, y / (float)mapSizeY) * scale;
+          float perlinNoiseValue = Mathf.PerlinNoise(percent.x, percent.y) * weight;
+          //perlinNoiseValue = (perlinNoiseValue - 0.5f) * weight;
           //perlinNoiseValue = perlinNoiseValue  * weight;
           noiseValue += perlinNoiseValue;
           weight *= p.persistence;
           scale *= p.lacunarity;
         }
         //float height = noiseValue;
-        noiseValue *= maskMap[y * mapSize + x];
-        map[y * mapSize + x] = inputMap[y * mapSize + x] + noiseValue;
+        noiseValue *= maskMap[x, y];
+        map[x, y] = inputMap[x, y] + noiseValue;
         minValue = Mathf.Min(noiseValue, minValue);
         maxValue = Mathf.Max(noiseValue, maxValue);
       }
@@ -52,8 +53,10 @@ public static class PerlinNoiseGenerator {
 
     // Normalize
     if (maxValue != minValue) {
-      for (int i = 0; i < map.Length; i++) {
-        map[i] = (map[i] - minValue) / (maxValue - minValue);
+      for (int i = 0; i < map.GetLength(0); i++) {
+        for (int j = 0; j < map.GetLength(1); j++) {
+          map[i, j] = (map[i, j] - minValue) / (maxValue - minValue);
+        }
       }
     }
 
