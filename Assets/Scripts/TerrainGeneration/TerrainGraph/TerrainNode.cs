@@ -47,6 +47,22 @@ public class TerrainNode : ScriptableObject {
 
   public List<HeightmapOutput> heightmapOutputs = new List<HeightmapOutput>();
   public List<HeightmapOutputReceiver> heightmapInputs = new List<HeightmapOutputReceiver>();
+  protected float[] GetInput(int mapSize, string name, float defaultValue = 0) {
+    HeightmapOutputReceiver heightmapInput = heightmapInputs.Find((x) => x.name == name);
+    HeightmapOutput heightmapOutput = heightmapInput.output;
+    float[] inputMap;
+    if (heightmapOutput is null || heightmapOutput.parent is null) {
+      inputMap = new float[mapSize * mapSize];
+      for (int i = 0; i < mapSize * mapSize; i++) {
+        inputMap[i] = defaultValue;
+      }
+    }
+    else {
+      inputMap = heightmapOutput.parent.Generate(heightmapOutput, mapSize);
+    }
+
+    return inputMap;
+  }
 
   public virtual float[] Generate(HeightmapOutput output, int mapSize) {
     return new float[mapSize * mapSize];

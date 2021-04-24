@@ -25,8 +25,12 @@ public class NodeSearchWindow : ScriptableObject, ISearchWindowProvider {
       new SearchTreeEntry(new GUIContent("Heightmap")) {
         userData=new HeightmapInputNodeView(graphView.terrainGenerator, ScriptableObject.CreateInstance<HeightMapInputNode>()), level=2
       },
-      new SearchTreeEntry(new GUIContent("Perling Noise")) {
+      new SearchTreeGroupEntry(new GUIContent("Generators"),level:1),
+      new SearchTreeEntry(new GUIContent("Perlin Noise")) {
         userData=new PerlinNoiseNodeView(graphView.terrainGenerator, CreateInstance<PerlinNoiseNode>()), level = 2
+      },
+      new SearchTreeEntry(new GUIContent("Blur")) {
+        userData=new BlurNodeView(graphView.terrainGenerator, CreateInstance<BlurNode>()), level = 2
       }
     };
 

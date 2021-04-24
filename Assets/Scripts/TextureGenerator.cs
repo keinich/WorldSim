@@ -23,9 +23,35 @@ public static class TextureGenerator {
       for (int x = 0; x < width; x++) {
         colorMap[y * width + x] = Color.Lerp(Color.black, Color.white, heightMap[x, y]);
       }
-    }  
+    }
 
-    return TextureFromColorMap(colorMap, width,height);
+    return TextureFromColorMap(colorMap, width, height);
+  }
+
+  public static Texture2D TextureFromHeightMap(float[] heightMap) {
+    int width = (int)Mathf.Sqrt(heightMap.GetLength(0));
+    int height = width;
+
+    Color[] colorMap = new Color[width * height];
+
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        colorMap[y * width + x] = Color.Lerp(Color.black, Color.white, heightMap[y * width + x]);
+      }
+    }
+
+    return TextureFromColorMap(colorMap, width, height);
+  }
+
+  public static float[] ConvertTextureToHeightMap(Texture2D texture) {
+    int width = texture.width;
+    float[] result = new float[width * width];
+    for (int i = 0; i < width; i++) {
+      for (int j = 0; j < width; j++) {
+        result[i * width + j] = texture.GetPixel(i, j).grayscale;
+      }
+    }
+    return result;
   }
 
 }
