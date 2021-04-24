@@ -8,6 +8,7 @@ public class ResultNode : TerrainNode {
   public ResultNode() {
     heightmapInput = new HeightmapOutputReceiver(this) { name = "Heightmap Input" };
     heightmapInputs.Add(heightmapInput);
+    nodeName = "Result";
   }
 
   public float[] GenerateHeightMap(int mapSize) {

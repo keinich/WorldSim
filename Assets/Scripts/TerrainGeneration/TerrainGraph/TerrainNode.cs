@@ -27,6 +27,8 @@ public class HeightmapOutputReceiver {
 [Serializable]
 public class TerrainNode : ScriptableObject {
 
+  public string nodeName;
+
   [SerializeField]
   private string _id;
 

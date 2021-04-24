@@ -11,15 +11,11 @@ public class HeightmapInputNodeView : TerrainNodeView<HeightMapInputNode> {
     public Texture2D texture2;
   }
 
-  public HeightmapInputNodeView(TerrainGenerator tg, HeightMapInputNode heightMapInputNode) {
-    terrainNode = heightMapInputNode;
-    title = "Heightmap Input";
+  public HeightmapInputNodeView(TerrainGenerator tg, HeightMapInputNode heightMapInputNode) : base(tg, heightMapInputNode) { 
+  }
 
-    GeneratePorts();
-
-    styleSheets.Add(Resources.Load<StyleSheet>(path: "Node"));
-
-    TextureField textureField = new TextureField(heightMapInputNode.heightMap, (t) => heightMapInputNode.heightMap = t);
+  protected override void InitProperties() {
+    TextureField textureField = new TextureField(terrainNodeCasted.heightMap, (t) => terrainNodeCasted.heightMap = t);
     mainContainer.Add(textureField.GetVisualElement());
 
     var objField = new ObjectField {
@@ -29,9 +25,6 @@ public class HeightmapInputNodeView : TerrainNodeView<HeightMapInputNode> {
     };
 
     mainContainer.Add(objField);
-
-    RefreshExpandedState();
-    RefreshPorts();
-
   }
+
 }

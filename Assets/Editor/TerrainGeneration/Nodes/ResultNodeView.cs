@@ -6,23 +6,14 @@ using UnityEngine.UIElements;
 
 public class ResultNodeView : TerrainNodeView<ResultNode> {
 
-  public ResultNodeView(TerrainGenerator tg, ResultNode resultNode) {
+  public ResultNodeView(TerrainGenerator tg, ResultNode resultNode) : base(tg, resultNode) {
+  }
 
-    terrainNode = resultNode;
-
-    title = "Result";
-    Content = "Result";
-
-    GeneratePorts();
-
-    styleSheets.Add(Resources.Load<StyleSheet>(path: "Node"));
-
+  protected override void InitProperties() {
     Button generateButton = new Button(() => {
-      tg.GenerateFromGraph();
+      terrainGenerator.GenerateFromGraph();
     }) { text = "Generate" };
     mainContainer.Add(generateButton);
-
-    RefreshExpandedState();
-    RefreshPorts();
   }
+
 }

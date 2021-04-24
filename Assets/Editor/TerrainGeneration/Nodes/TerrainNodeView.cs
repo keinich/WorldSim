@@ -1,3 +1,4 @@
+using System;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -22,13 +23,30 @@ public class MyIEdgeConnectorListener : IEdgeConnectorListener {
 
 }
 
-public class TerrainNodeView: Node  {
-
-  public string Content;
-
+public abstract class TerrainNodeView: Node  {
+  
   public bool EntryPoint;
 
   public TerrainNode terrainNode;
+
+  public TerrainGenerator terrainGenerator;
+
+  public TerrainNodeView(TerrainGenerator tg, TerrainNode tn) {
+    terrainNode = tn;
+    terrainGenerator = tg;
+    title = tn.nodeName;
+
+    GeneratePorts();
+
+    styleSheets.Add(Resources.Load<StyleSheet>(path: "Node"));
+
+    InitProperties();
+
+    RefreshExpandedState();
+    RefreshPorts();
+  }
+
+  protected abstract void InitProperties();
 
   public Port GeneratePort(Direction portDirection, Port.Capacity capacity = Port.Capacity.Single) {
     Port result = this.InstantiatePort(Orientation.Horizontal, portDirection, capacity, type: typeof(float));
@@ -70,8 +88,12 @@ public class TerrainNodeView: Node  {
 
 }
 
-public class TerrainNodeView<T> : TerrainNodeView where T : TerrainNode {
+public abstract class TerrainNodeView<T> : TerrainNodeView where T : TerrainNode {
 
-  T terrainNodeCasted => (T)terrainNode;
+  public TerrainNodeView(TerrainGenerator tg, T tn) : base(tg, tn) {
+
+  }
+
+  protected T terrainNodeCasted => (T)terrainNode;
 
 }

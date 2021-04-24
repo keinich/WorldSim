@@ -37,15 +37,25 @@ public class TerrainGraphView : GraphView {
   }
 
   private GraphViewChange TerrainGraphViewChanged(GraphViewChange graphViewChange) {
-    if (graphViewChange.elementsToRemove is null) {
-      return graphViewChange;
-    }
-    foreach (GraphElement ge in graphViewChange.elementsToRemove) {
-      if (!(typeof(Node).IsAssignableFrom(ge.GetType()))) {
-        continue;
+    if (!(graphViewChange.elementsToRemove is null)) {
+      foreach (GraphElement ge in graphViewChange.elementsToRemove) {
+        switch (ge) {
+          case TerrainNodeView nodeToRemove:
+            terrainGenerator.terrainGraph.terrainNodes.Remove(nodeToRemove.terrainNode);
+            break;
+          case Edge edgeToRemove:
+            Port inputPort = edgeToRemove.input;
+            if (!(inputPort.userData is null) && inputPort.userData.GetType() == typeof(HeightmapOutputReceiver)) {
+              HeightmapOutputReceiver heightmapInput = (HeightmapOutputReceiver)inputPort.userData;
+              heightmapInput.output = null;
+            }
+            Debug.Log("Edge removed");
+            break;
+        }
+
+
+        //TODO remove edges
       }
-      TerrainNodeView terrainNodeView = (TerrainNodeView)ge;
-      terrainGenerator.terrainGraph.terrainNodes.Remove(terrainNodeView.terrainNode);
     }
     return graphViewChange;
   }
@@ -109,12 +119,21 @@ public class TerrainGraphView : GraphView {
       HeightmapOutput heightmapOutput = heightmapInput.output;
       if (heightmapOutput is null) continue;
       TerrainNode outputNode = heightmapOutput.parent;
-      TerrainNodeView outputNodeView = this.nodes.Cast<TerrainNodeView>().Where((n) => n.terrainNode.id == outputNode.id).First();
+      if (outputNode is null) continue;
+      TerrainNodeView outputNodeView = this.nodes.Cast<TerrainNodeView>().Where((n) => n.terrainNode.id == outputNode.id).FirstOrDefault();
       TerrainNodeView inputNodeView = this.nodes.Cast<TerrainNodeView>().Where((n) => n.terrainNode.id == terrainNode.id).First();
       if (outputNodeView is null) continue;
-      Port outputPort = outputNodeView.outputContainer[0].Query<Port>().Build().Where((p) => p.portName == heightmapOutput.name).First();
-      //Port outputPort2 = outputNodeView.outputContainer[0].Q<Port>(heightmapOutput.name);
-      Port inputPort = inputNodeView.inputContainer[0].Query<Port>().Build().Where((p) => p.portName == heightmapInput.name).First();
+      Port inputPort = null;
+      Port outputPort = null;
+      for (int i = 0; i < outputNodeView.outputContainer.childCount; i++) {
+        outputPort = outputNodeView.outputContainer[i].Query<Port>().Build().Where((p) => p.portName == heightmapOutput.name).FirstOrDefault();
+        if (!(outputPort is null)) break;
+      }
+      for (int i = 0; i < inputNodeView.inputContainer.childCount; i++) {
+        inputPort = inputNodeView.inputContainer[i].Query<Port>().Build().Where((p) => p.portName == heightmapInput.name).FirstOrDefault();
+        if (!(inputPort is null)) break;
+      }
+      if (inputPort is null || outputPort is null) continue;
       LinkNodes(outputPort, inputPort);
     }
   }
@@ -152,7 +171,7 @@ public class TerrainGraphView : GraphView {
 
   public void CreateNode(TerrainNode terrainNode, Vector2 position) {
     TerrainNodeView nodeView1 = CreateTerrainNodeView(terrainNode);
-    
+
     nodeView1.SetPosition(new Rect(position: position, defaultNodeSize));
     AddElement(nodeView1);
     return;
@@ -168,39 +187,6 @@ public class TerrainGraphView : GraphView {
       }
     }
     return null;
-  }
-
-  internal TerrainNodeView CreateTerrainNodeOld(string nodeName, Vector2 position) {
-    TerrainNodeView terrainNode = new TerrainNodeView {
-      title = nodeName,
-      Content = nodeName
-    };
-
-    Port inputPort = terrainNode.GeneratePort(Direction.Input, Port.Capacity.Multi);
-    inputPort.portName = "Input";
-    terrainNode.inputContainer.Add(inputPort);
-
-    terrainNode.styleSheets.Add(Resources.Load<StyleSheet>(path: "Node"));
-
-    Button button = new Button(clickEvent: () => { AddChoicePort(terrainNode); });
-    button.text = "New Choice";
-    terrainNode.titleContainer.Add(button);
-
-    TextField textField = new TextField(string.Empty);
-    textField.RegisterValueChangedCallback(
-      evt => {
-        terrainNode.Content = evt.newValue;
-        terrainNode.title = evt.newValue;
-      }
-    );
-    textField.SetValueWithoutNotify(terrainNode.title);
-    terrainNode.mainContainer.Add(textField);
-
-    terrainNode.RefreshExpandedState();
-    terrainNode.RefreshPorts();
-    terrainNode.SetPosition(new Rect(position: position, defaultNodeSize));
-
-    return terrainNode;
   }
 
   public void AddChoicePort(TerrainNodeView terrainNode, string overridenPortName = "") {
