@@ -31,6 +31,8 @@ public abstract class TerrainNodeView : Node {
 
   public TerrainGenerator terrainGenerator;
 
+  Image previewImage;
+
   public TerrainNodeView(TerrainGenerator tg, TerrainNode tn) {
     terrainNode = tn;
     terrainGenerator = tg;
@@ -42,14 +44,7 @@ public abstract class TerrainNodeView : Node {
 
     InitProperties();
 
-    HeightmapOutput heightmapOutput = tn.heightmapOutputs.Find((x) => x.name == "Heightmap Output");
-    if (!(heightmapOutput is null)) {
-      Image previewImage = new Image();
-      float[,] previewMap = tn.Generate(heightmapOutput, tg.mapSize);
-      Texture2D previewTexture = TextureGenerator.TextureFromHeightMap(previewMap);
-      TextureField textureField = new TextureField(previewTexture, (t) => previewTexture = t);
-      mainContainer.Add(textureField.GetVisualElement());
-    }
+    UpdatePreview();
 
     RefreshExpandedState();
     RefreshPorts();
@@ -95,6 +90,19 @@ public abstract class TerrainNodeView : Node {
     terrainNode.position = newPos.position;
   }
 
+  protected void UpdatePreview() {
+    HeightmapOutput heightmapOutput = terrainNode.heightmapOutputs.Find((x) => x.name == "Heightmap Output");
+    if (!(heightmapOutput is null)) {
+      if (previewImage is null) {
+        previewImage = new Image();
+        mainContainer.Add(previewImage);
+      }
+      float[,] previewMap = terrainNode.Generate(heightmapOutput, terrainGenerator.mapSize);
+      Texture2D previewTexture = TextureGenerator.TextureFromHeightMap(previewMap);
+      previewImage.image = previewTexture;
+    }
+    terrainGenerator.GenerateFromGraph();
+  }
 }
 
 public abstract class TerrainNodeView<T> : TerrainNodeView where T : TerrainNode {

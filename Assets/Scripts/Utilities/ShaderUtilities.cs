@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -51,6 +52,10 @@ public class ShaderUtilities : MonoBehaviour {
     return result;
   }
 
+  internal static ComputeShader GetErosionShader() {
+    return GetShader("Erosion");
+  }
+
   public static ComputeShader GetShader(string shaderName) {
     ComputeShader[] compShaders = (ComputeShader[])Resources.FindObjectsOfTypeAll(typeof(ComputeShader));
     for (int i = 0; i < compShaders.Length; i++) {
@@ -58,6 +63,7 @@ public class ShaderUtilities : MonoBehaviour {
         return compShaders[i];
       }
     }
+    Debug.LogError($"No shader with name {shaderName}");
     return null;
   }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.UIElements;
@@ -14,7 +15,10 @@ public class PerlinNoiseNodeView : TerrainNodeView<PerlinNoiseNode>{
     // Persistance 
     FloatField persistanceField = new FloatField("Persistance");
     persistanceField.SetValueWithoutNotify(terrainNodeCasted.perlinNoiseParams.persistence);
-    persistanceField.RegisterValueChangedCallback((p) => terrainNodeCasted.perlinNoiseParams.persistence = p.newValue);
+    persistanceField.RegisterValueChangedCallback((p) => {
+      terrainNodeCasted.perlinNoiseParams.persistence = p.newValue;
+      UpdatePreview();
+    });
     mainContainer.Add(persistanceField);
 
     // seed 
@@ -35,5 +39,4 @@ public class PerlinNoiseNodeView : TerrainNodeView<PerlinNoiseNode>{
     scaleField.RegisterValueChangedCallback((p) => terrainNodeCasted.perlinNoiseParams.initialScale = p.newValue);
     mainContainer.Add(scaleField);
   }
-
 }

@@ -20,6 +20,10 @@ public class NodeSearchWindow : ScriptableObject, ISearchWindowProvider {
     List<SearchTreeEntry> tree = new List<SearchTreeEntry> {
       new SearchTreeGroupEntry(new GUIContent("Create Elements"),level:0),
       new SearchTreeGroupEntry(new GUIContent("Natural"),level:1),
+      new SearchTreeEntry(new GUIContent("Erosion")) {
+        userData = new ErosionNodeView(graphView.terrainGenerator, CreateInstance<ErosionNode>()),
+        level=2
+      },
       new SearchTreeEntry(new GUIContent("Beach")) { level = 2},
       new SearchTreeGroupEntry(new GUIContent("Input"),level:1),
       new SearchTreeEntry(new GUIContent("Heightmap")) {
