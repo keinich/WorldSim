@@ -3,29 +3,52 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class ErosionParams {
-  internal int erosionBrushRadius = 5;
-  internal int numErosionIterations = 100000;
-  internal int maxLifetime = 5;
-  internal float inertia = .05f;
-  internal float sedimentCapacityFactor = 4;
-  internal float minSedimentCapacity = .01f;
-  internal float depositSpeed = .3f;
-  internal float erodeSpeed = .3f;
-  internal float evaporateSpeed = .01f;
-  internal float gravity = 4;
-  internal float startSpeed = 1;
-  internal float startWater = 1;
+
+  [SerializeField]
+  public int erosionBrushRadius = 5;
+  [SerializeField]
+  public int numErosionIterations = 100000;
+  [SerializeField]
+  public int maxLifetime = 5;
+  [SerializeField]
+  public float inertia = .05f;
+  [SerializeField]
+  public float sedimentCapacityFactor = 4;
+  [SerializeField]
+  public float minSedimentCapacity = .01f;
+  [SerializeField]
+  public float depositSpeed = .3f;
+  [SerializeField]
+  public float erodeSpeed = .3f;
+  [SerializeField]
+  public float evaporateSpeed = .01f;
+  [SerializeField]
+  public float gravity = 4;
+  [SerializeField]
+  public float startSpeed = 1;
+  [SerializeField]
+  public float startWater = 1;
 }
 
 public static class ErosionGenerator {
 
   public static float[,] Erode(float[,] inputMap, ErosionParams p) {
 
+    float[] input1D = HeightmapUtilities.ConvertFrom2DTo1D(inputMap);
+
+    float[] result = Erode(input1D, inputMap.GetLength(0) - p.erosionBrushRadius * 2, p);
+
+    return HeightmapUtilities.ConvertFrom1DTo2D(result);
+  }
+
+  public static float[] Erode(float[] map, int mapSize, ErosionParams p) {
     ComputeShader erosion = ShaderUtilities.GetErosionShader();
 
-    float[] map = HeightmapUtilities.ConvertFrom2DTo1D(inputMap);
+    //float[] map = new float[inputMap.Length];
+    //for (int i = 0; i < inputMap.Length; i++) {
+    //  map[i] = inputMap[i];
+    //}
 
-    int mapSize = inputMap.GetLength(0);
     int mapSizeWithBorder = mapSize + p.erosionBrushRadius * 2;
 
     int numThreads = p.numErosionIterations / 1024;
@@ -101,7 +124,7 @@ public static class ErosionGenerator {
     brushIndexBuffer.Release();
     brushWeightBuffer.Release();
 
-    return HeightmapUtilities.ConvertFrom1DTo2D(map);
+    return map;
   }
 
 }

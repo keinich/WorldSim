@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class PerlinNoiseParams {
+  [SerializeField]
   public bool randomizeSeed = true;
   public int numOctaves = 4;
   public float initialScale = 10f;

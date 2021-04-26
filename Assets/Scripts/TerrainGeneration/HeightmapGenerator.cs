@@ -27,19 +27,25 @@ public static class HeightmapGenerator {
     float minValue = float.MaxValue;
     float maxValue = float.MinValue;
 
-    Texture2D bluredMountainMap = ShaderUtilities.Blur(mountainMap, mountainBlurResolution, mountainBlurSize);
-
     float[] mountainMaskArray = new float[mapSize * mapSize];
-    for (int x = 0; x < mapSize; x++) {
-      for (int y = 0; y < mapSize; y++) {
-        //int u = x * (mapSize / mountainMap.width);
-        //int v = y * (mapSize / mountainMap.height);
-        int u = x * (bluredMountainMap.width / mapSize);
-        int v = y * (bluredMountainMap.height / mapSize);
-        Color mountainIntensityColor = bluredMountainMap.GetPixel(u, v);
-        float mountainIntensity = mountainIntensityColor.r;
-        //mountainMask[x * mapSize + y] = Mathf.PerlinNoise(p.x, p.y);
-        mountainMaskArray[x * mapSize + y] = mountainIntensity;
+    for (int mi = 0; mi < mountainMaskArray.Length; mi++) {
+      mountainMaskArray[mi] = 1;
+    }
+    if (!(mountainMap is null)) {
+
+      Texture2D bluredMountainMap = ShaderUtilities.Blur(mountainMap, mountainBlurResolution, mountainBlurSize);
+
+      for (int x = 0; x < mapSize; x++) {
+        for (int y = 0; y < mapSize; y++) {
+          //int u = x * (mapSize / mountainMap.width);
+          //int v = y * (mapSize / mountainMap.height);
+          int u = x * (bluredMountainMap.width / mapSize);
+          int v = y * (bluredMountainMap.height / mapSize);
+          Color mountainIntensityColor = bluredMountainMap.GetPixel(u, v);
+          float mountainIntensity = mountainIntensityColor.r;
+          //mountainMask[x * mapSize + y] = Mathf.PerlinNoise(p.x, p.y);
+          mountainMaskArray[x * mapSize + y] = mountainIntensity;
+        }
       }
     }
 

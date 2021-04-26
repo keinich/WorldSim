@@ -34,6 +34,7 @@ public static class Erosion {
         float sqrDst = brushX * brushX + brushY * brushY;
         if (sqrDst < erosionBrushRadius * erosionBrushRadius) {
           brushIndexOffsets.Add(brushY * mapSize + brushX);
+          //brushIndexOffsets.Add(brushX * mapSize + brushY);
           float brushWeight = 1 - Mathf.Sqrt(sqrDst) / erosionBrushRadius;
           weightSum += brushWeight;
           brushWeights.Add(brushWeight);
@@ -58,6 +59,7 @@ public static class Erosion {
       int randomX = UnityEngine.Random.Range(erosionBrushRadius, mapSize + erosionBrushRadius);
       int randomY = UnityEngine.Random.Range(erosionBrushRadius, mapSize + erosionBrushRadius);
       randomIndices[i] = randomY * mapSize + randomX;
+      //randomIndices[i] = randomX * mapSize + randomY;
     }
 
     // Send random indices to compute shader

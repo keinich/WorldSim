@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -38,6 +41,12 @@ public abstract class TerrainNodeView : Node {
     terrainGenerator = tg;
     title = tn.nodeName;
 
+    ObjectCrawlParams p = new ObjectCrawlParams() {
+      OnPropertyFound = (pi, parent) => GeneratePropertyField(pi),
+      OnFieldFound = (fi, parent) => GenerateFieldField(fi, parent)
+    };
+    ReflectionUtilities.CrawlProperties(tn, p);
+
     GeneratePorts();
 
     styleSheets.Add(Resources.Load<StyleSheet>(path: "Node"));
@@ -48,6 +57,48 @@ public abstract class TerrainNodeView : Node {
 
     RefreshExpandedState();
     RefreshPorts();
+  }
+
+  private bool GenerateFieldField(FieldInfo fi, object parent) {
+    if (fi.GetCustomAttribute<SerializeField>() is null) return true;
+    Debug.Log($"Generate Field for {fi.Name}");
+    Type baseType = typeof(FieldGenerator<>);
+
+    Type fieldType = baseType.MakeGenericType(fi.FieldType);
+
+    List<Type> fieldTypes = TypeIndexer.GetApplicableTypes(fieldType);
+
+    if (fieldTypes.Count == 2) {
+      foreach (Type fieldTypeCandidate in fieldTypes) {
+        if (fieldTypes.Select((x) => x.Name).Contains(fieldTypeCandidate.BaseType.Name)) {
+          fieldType = fieldTypeCandidate;
+          break;
+        }
+      }
+    }
+
+    if (fieldTypes.Count > 0) fieldType = fieldTypes.First();
+
+    object[] ps = { fi.Name };
+    FieldGenerator fieldGenerator = (FieldGenerator)Activator.CreateInstance(fieldType, ps);
+    fieldGenerator.Init(
+      () => fi.GetValue(parent), 
+      (nv) => { 
+        fi.SetValue(parent, nv);
+        UpdatePreview();
+      }
+    );
+    VisualElement visualElement = fieldGenerator.GetVisualElement();
+    if (!(visualElement is null)) {
+      mainContainer.Add(fieldGenerator.GetVisualElement());
+    }
+    return false;
+  }
+
+  private bool GeneratePropertyField(PropertyInfo pi) {
+    if (pi.GetCustomAttribute<SerializeField>() is null) return true;
+    Debug.Log($"Generate Field for {pi.Name}");
+    return false;
   }
 
   protected abstract void InitProperties();
@@ -97,7 +148,7 @@ public abstract class TerrainNodeView : Node {
         previewImage = new Image();
         mainContainer.Add(previewImage);
       }
-      float[,] previewMap = terrainNode.Generate(heightmapOutput, terrainGenerator.mapSize);
+      float[,] previewMap = terrainNode.Generate(heightmapOutput, 200);
       Texture2D previewTexture = TextureGenerator.TextureFromHeightMap(previewMap);
       previewImage.image = previewTexture;
     }

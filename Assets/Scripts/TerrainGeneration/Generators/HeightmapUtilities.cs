@@ -19,9 +19,9 @@ public static class HeightmapUtilities {
     int width = inputMap.GetLength(0);
     int height = inputMap.GetLength(1);
     float[] result = new float[width * height];
-    for (int j = 0; j < height; j++) {
-      for (int i = 0; i < width; i++) {
-        result[j * width + i] = inputMap[i, j];
+    for (int i = 0; i < height; i++) {
+      for (int j = 0; j < width; j++) {
+        result[i * width + j] = inputMap[i, j];
       }
     }
     return result;
@@ -38,11 +38,32 @@ public static class HeightmapUtilities {
       return null;
     }
     float[,] result = new float[width, height];
-    for (int j = 0; j < height; j++) {
-      for (int i = 0; i < width; i++) {
-        result[i, j] = map[j * width + i];
+    for (int i = 0; i < height; i++) {
+      for (int j = 0; j < width; j++) {
+        result[i, j] = map[i * width + j];
       }
     }
     return result;
+  }
+
+  internal static bool Compare(float[,] inputMap, float[,] inputMap2) {
+    if (inputMap.GetLength(0) != inputMap2.GetLength(0)) return false;
+    if (inputMap.GetLength(1) != inputMap2.GetLength(1)) return false;
+    for (int x = 0; x < inputMap.GetLength(0); x++) {
+      for (int y = 0; y < inputMap.GetLength(1); y++) {
+        if (inputMap[x, y] != inputMap2[x, y]) return false;
+      }
+    }
+    return true;
+  }
+
+  internal static void Print(float[,] inputMap) {
+    for (int x = 0; x < inputMap.GetLength(0); x++) {
+      string line = "";
+      for (int y = 0; y < inputMap.GetLength(1); y++) {
+        line += $"[{inputMap[x, y]}]";
+      }
+      Debug.Log(line);
+    }
   }
 }

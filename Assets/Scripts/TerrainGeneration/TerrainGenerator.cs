@@ -95,7 +95,60 @@ public class TerrainGenerator : MonoBehaviour {
       mapSizeWithBorder, seed, randomizeSeed, numOctaves, initialScale, persistence, lacunarity, mountainMap, mountainMapBlurResolution, mountainMapBlurSize
     );
     if (useErosion) {
-      Erosion.Erode(map, mapSize, numErosionIterations, erosionBrushRadius, erosion, maxLifetime, inertia, depositSpeed, minSedimentCapacity, evaporateSpeed, sedimentCapacityFactor, erodeSpeed, startSpeed, startWater, gravity);
+      //Erosion.Erode(
+      //map, mapSize, numErosionIterations, erosionBrushRadius, erosion, maxLifetime, inertia, depositSpeed, minSedimentCapacity, 
+      //  evaporateSpeed, sedimentCapacityFactor, erodeSpeed, startSpeed, startWater, gravity
+      //);
+      map = HeightmapUtilities.ConvertFrom2DTo1D(ErosionGenerator.Erode(
+        HeightmapUtilities.ConvertFrom1DTo2D(map), new ErosionParams {
+          numErosionIterations = numErosionIterations,
+          erosionBrushRadius = erosionBrushRadius,
+          maxLifetime = maxLifetime,
+          inertia = inertia,
+          depositSpeed = depositSpeed,
+          minSedimentCapacity = minSedimentCapacity,
+          evaporateSpeed = evaporateSpeed,
+          sedimentCapacityFactor = sedimentCapacityFactor,
+          erodeSpeed = erodeSpeed,
+          startSpeed = startSpeed,
+          startWater = startWater,
+          gravity = gravity
+        }));
+      //map = HeightmapUtilities.ConvertFrom2DTo1D(HeightmapUtilities.ConvertFrom1DTo2D(map));
+      //map = ErosionGenerator.Erode(
+      //  map, mapSize, new ErosionParams {
+      //    numErosionIterations = numErosionIterations,
+      //    erosionBrushRadius = erosionBrushRadius,
+      //    maxLifetime = maxLifetime,
+      //    inertia = inertia,
+      //    depositSpeed = depositSpeed,
+      //    minSedimentCapacity = minSedimentCapacity,
+      //    evaporateSpeed = evaporateSpeed,
+      //    sedimentCapacityFactor = sedimentCapacityFactor,
+      //    erodeSpeed = erodeSpeed,
+      //    startSpeed = startSpeed,
+      //    startWater = startWater,
+      //    gravity = gravity
+      //  });
+      //map = ErosionGenerator.Erode(
+      //  HeightmapUtilities.ConvertFrom2DTo1D(HeightmapUtilities.ConvertFrom1DTo2D(map)),
+      //  mapSize, 
+      //  new ErosionParams {
+      //    numErosionIterations = numErosionIterations,
+      //    erosionBrushRadius = erosionBrushRadius,
+      //    maxLifetime = maxLifetime,
+      //    inertia = inertia,
+      //    depositSpeed = depositSpeed,
+      //    minSedimentCapacity = minSedimentCapacity,
+      //    evaporateSpeed = evaporateSpeed,
+      //    sedimentCapacityFactor = sedimentCapacityFactor,
+      //    erodeSpeed = erodeSpeed,
+      //    startSpeed = startSpeed,
+      //    startWater = startWater,
+      //    gravity = gravity
+      //  }
+      //);
+      //map = HeightmapUtilities.ConvertFrom2DTo1D(HeightmapUtilities.ConvertFrom1DTo2D(map));
     }
   }
 
@@ -103,6 +156,8 @@ public class TerrainGenerator : MonoBehaviour {
     Terrain terrain = FindObjectOfType<Terrain>();
     terrain.terrainData.heightmapResolution = mapSize;
     float[,] heightMap = GetTerrainHeightMap(map);
+
+    //heightMap = HeightmapUtilities.ConvertFrom1DTo2D(map);
     terrain.terrainData.SetHeights(0, 0, heightMap);
     terrain.drawInstanced = false;
     terrain.Flush();

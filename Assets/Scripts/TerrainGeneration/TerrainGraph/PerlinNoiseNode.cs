@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PerlinNoiseNode : TerrainNode {
 
+  [SerializeField]
   public PerlinNoiseParams perlinNoiseParams;
 
   public PerlinNoiseNode() {

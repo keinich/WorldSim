@@ -1,10 +1,12 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class ErosionNode : TerrainNode {
-
-  ErosionParams erosionParams;
+  
+  [SerializeField]
+  public ErosionParams erosionParams;
 
   public ErosionNode() {
     heightmapInputs.Add(new HeightmapOutputReceiver(this) { name = "Heightmap Input" });
