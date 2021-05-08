@@ -65,9 +65,10 @@ public class TerrainGenerator : MonoBehaviour {
 
   public void GenerateFromGraph() {
     ResultNode resultNode = terrainGraph.resultNode;
-    float[,] heightMap = resultNode.GenerateHeightMap(mapSize);
+    float[,] heightMap = resultNode.GenerateHeightMap();
     Terrain terrain = FindObjectOfType<Terrain>();
-    terrain.terrainData.heightmapResolution = mapSize;
+    
+    terrain.terrainData.heightmapResolution = heightMap.GetLength(0);
     //float[,] heightMap = GetTerrainHeightMap(map);
     terrain.terrainData.SetHeights(0, 0, heightMap);
     terrain.drawInstanced = false;

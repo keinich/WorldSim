@@ -152,7 +152,7 @@ public abstract class TerrainNodeView : Node {
       Texture2D previewTexture = TextureGenerator.TextureFromHeightMap(previewMap);
       previewImage.image = previewTexture;
     }
-    terrainGenerator.GenerateFromGraph();
+    //terrainGenerator.GenerateFromGraph();
   }
 }
 

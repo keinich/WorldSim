@@ -1,16 +1,21 @@
 using System;
+using UnityEngine;
 
 [Serializable]
 public class ResultNode : TerrainNode {
 
-  public float heightScale;
+  [SerializeField]
+  public float heightScale = 500;
+
+  [SerializeField]
+  public int mapSize;
 
   public ResultNode() {
     heightmapInputs.Add(new HeightmapOutputReceiver(this) { name = "Heightmap Input" });
     nodeName = "Result";
   }
 
-  public float[,] GenerateHeightMap(int mapSize) {
+  public float[,] GenerateHeightMap() {
 
     float[,] input = GetInput(mapSize, "Heightmap Input");
     float[,] result = new float[mapSize, mapSize];
