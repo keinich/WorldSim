@@ -66,27 +66,63 @@ public class TerrainGenerator : MonoBehaviour {
   public void GenerateFromGraph() {
     ResultNode resultNode = terrainGraph.resultNode;
     float[,] heightMap = resultNode.GenerateHeightMap();
+
+
+
+    //return;
     Terrain terrain = FindObjectOfType<Terrain>();
-    
-    terrain.terrainData.heightmapResolution = heightMap.GetLength(0);
-    //float[,] heightMap = GetTerrainHeightMap(map);
-    terrain.terrainData.SetHeights(0, 0, heightMap);
-    terrain.drawInstanced = false;
-    terrain.Flush();
-  }
 
-  public void CreateTerrain() {
-    //GenerateHeightMap();
-    //if (erosion) {
-    //  Erosion.Erode(
-    //    map,
-    //    mapSize,
-    //    numErosionIterations, erosionBrushRadius, erosion, maxLifetime, inertia, depositSpeed, minSedimentCapacity, evaporateSpeed, sedimentCapacityFactor, erodeSpeed, startSpeed, startWater, gravity
-    //  );
-    //}
-  }
+    Terrain leftLowerMostTerrain = terrain;
+    while (true) {
+      if (leftLowerMostTerrain.leftNeighbor is null) break;
+      leftLowerMostTerrain = leftLowerMostTerrain.leftNeighbor;
+    }
+    while (true) {
+      if (leftLowerMostTerrain.bottomNeighbor is null) break;
+      leftLowerMostTerrain = leftLowerMostTerrain.bottomNeighbor;
+    }
 
-  private void OnValidate() {
+    int chunkSize = 513;
+    int terrainSize = 3 * 513;
+    float[,] dummyMap = new float[terrainSize, terrainSize];
+    for (int i = 0; i < terrainSize; i++) {
+      for (int j = 0; j < terrainSize; j++) {
+        dummyMap[i, j] = ((float)(i + j)) / (2.0f * terrainSize);
+      }
+    }
+    dummyMap = heightMap;
+    Terrain currentTerrain = leftLowerMostTerrain;
+    Terrain currentBottomTerrain = leftLowerMostTerrain;
+    for (int i = 0; i < terrainSize; i += chunkSize) {
+      for (int j = 0; j < terrainSize; j += chunkSize) {
+        float[,] chunkMap = new float[chunkSize, chunkSize];
+        float leftBottomHeight = dummyMap[i, j];
+        for (int ii = 0; ii < chunkSize; ii++) {
+          for (int jj = 0; jj < chunkSize; jj++) {
+            chunkMap[jj, ii] = dummyMap[i + ii, j + jj];
+            //chunkMap[ii, jj] = dummyMap[ii,jj];
+            //chunkMap[jj, ii] = dummyMap[ii,jj];
+          }
+        }
+        currentTerrain.terrainData.heightmapResolution = chunkSize;
+        currentTerrain.terrainData.SetHeights(0, 0, chunkMap);
+        currentTerrain.drawInstanced = false;
+        if (!(currentTerrain.topNeighbor is null)) {
+          currentTerrain = currentTerrain.topNeighbor;
+        }
+      }
+      if (!(currentBottomTerrain.rightNeighbor is null)) {
+        currentBottomTerrain = currentBottomTerrain.rightNeighbor;
+        currentTerrain = currentBottomTerrain;
+      }
+    }
+    foreach (Terrain t in FindObjectsOfType<Terrain>()) {
+      t.Flush();
+    }
+    //terrain.terrainData.heightmapResolution = heightMap.GetLength(0);
+    //terrain.terrainData.SetHeights(0, 0, heightMap);
+    //terrain.drawInstanced = false;
+    //terrain.Flush();
   }
 
   public void GenerateHeightMap() {
