@@ -6,6 +6,10 @@ using UnityEngine;
 
 public class TerrainGenerator : MonoBehaviour {
 
+  public int chunkSize = 513;
+
+  public Terrain mainTerrain;
+
   public TerrainGraph terrainGraph;
 
   public bool printTimers;
@@ -64,12 +68,34 @@ public class TerrainGenerator : MonoBehaviour {
   }
 
   public void GenerateFromGraph() {
+
     ResultNode resultNode = terrainGraph.resultNode;
     float[,] heightMap = resultNode.GenerateHeightMap();
 
+    mapSize = heightMap.GetLength(0);
 
-
+    Terrain[,] terrainTiles = GetTerrainTiles();
     //return;
+
+    float[,] dummyMap = new float[mapSize, mapSize];
+    for (int i = 0; i < mapSize; i++) {
+      for (int j = 0; j < mapSize; j++) {
+        dummyMap[i, j] = ((float)(i + j)) / (2.0f * mapSize);
+        //dummyMap[i, j] *= 10f;
+      }
+    }
+  
+    for (int i = 0; i < terrainTiles.GetLength(0); i++) {
+      for (int j = 0; j < terrainTiles.GetLength(1); j++) {
+        float[,] tileHeightMap = CreateTileHeightMap(i, j, heightMap);
+        Terrain terrainTile = terrainTiles[i, j];
+        terrainTile.terrainData.SetHeights(0, 0, tileHeightMap);
+        terrainTile.Flush();
+      }
+    }
+
+
+    return;
     Terrain terrain = FindObjectOfType<Terrain>();
 
     Terrain leftLowerMostTerrain = terrain;
@@ -82,14 +108,8 @@ public class TerrainGenerator : MonoBehaviour {
       leftLowerMostTerrain = leftLowerMostTerrain.bottomNeighbor;
     }
 
-    int chunkSize = 513;
-    int terrainSize = 3 * 513;
-    float[,] dummyMap = new float[terrainSize, terrainSize];
-    for (int i = 0; i < terrainSize; i++) {
-      for (int j = 0; j < terrainSize; j++) {
-        dummyMap[i, j] = ((float)(i + j)) / (2.0f * terrainSize);
-      }
-    }
+    int terrainSize = 3 * chunkSize;
+
     dummyMap = heightMap;
     Terrain currentTerrain = leftLowerMostTerrain;
     Terrain currentBottomTerrain = leftLowerMostTerrain;
@@ -123,6 +143,99 @@ public class TerrainGenerator : MonoBehaviour {
     //terrain.terrainData.SetHeights(0, 0, heightMap);
     //terrain.drawInstanced = false;
     //terrain.Flush();
+  }
+
+  private float[,] CreateTileHeightMap(int tileX, int tileY, float[,] heightMap) {
+    int startX = tileX * chunkSize;
+    int startY = tileY * chunkSize;
+    float[,] result = new float[chunkSize, chunkSize];
+    for (int i = 0; i < chunkSize; i++) {
+      for (int j = 0; j < chunkSize; j++) {
+        result[j, i] = heightMap[startX + i, startY + j];
+        float resultji = result[j, i];
+      }
+    }
+    return result;
+  }
+
+  private Terrain[,] GetTerrainTiles() {
+
+    int numTiles = mapSize / chunkSize;
+
+    Terrain[,] result = new Terrain[numTiles, numTiles];
+
+    int tilesLeft = numTiles / 2;
+    int tilesRight = numTiles - tilesLeft;
+    int tilesBottom = tilesLeft;
+    int tilesTop = tilesRight;
+
+    Terrain currentTerrain = mainTerrain;
+    Terrain currentLeftTerrain = mainTerrain;
+    result[0, 0] = currentTerrain;
+    for (int j = 0; j < numTiles; j++) {
+      for (int i = 0; i < numTiles; i++) {
+        Terrain neighborTerrain;
+        if (i < numTiles - 1) {
+          neighborTerrain = currentTerrain.rightNeighbor;
+          if (neighborTerrain is null) {
+            neighborTerrain = Instantiate<Terrain>(currentTerrain, gameObject.transform);
+            neighborTerrain.transform.position = currentTerrain.transform.position + new Vector3(
+              2 * currentTerrain.terrainData.bounds.extents.x, 0, 0
+            );
+          }
+          result[i + 1, j] = neighborTerrain;
+          neighborTerrain.name = $"TerrainTile{i + 1}_{j}";
+        }
+        else {
+          neighborTerrain = currentLeftTerrain.topNeighbor;
+          if (neighborTerrain is null) {
+            neighborTerrain = Instantiate<Terrain>(currentLeftTerrain, gameObject.transform);
+            neighborTerrain.transform.position = currentLeftTerrain.transform.position + new Vector3(
+              0, 0, 2 * currentLeftTerrain.terrainData.bounds.extents.x
+            );
+          }
+          currentLeftTerrain = neighborTerrain;
+          result[0, j + 1] = neighborTerrain;
+          neighborTerrain.name = $"TerrainTile{0}_{j + 1}";
+        }
+        TerrainData td = Instantiate<TerrainData>(mainTerrain.terrainData);
+        neighborTerrain.terrainData = td;
+        neighborTerrain.terrainData.heightmapResolution = chunkSize;
+
+        currentTerrain = neighborTerrain;
+        if (j == numTiles - 1 && i == numTiles - 2) {
+          break;
+        }
+      }
+    }
+
+    //while (indexX >= 0) {
+    //  if (currentTerrain.leftNeighbor is null) { 
+    //    Terrain newTerrain = Instantiate<Terrain>(mainTerrain, gameObject.transform);
+    //    newTerrain.get
+    //    newTerrain.transform.position = currentTerrain.transform.position - new Vector3(
+    //      2 * currentTerrain.terrainData.bounds.extents.x, 0, 0
+    //    );
+    //    newTerrain.terrainData.heightmapResolution = chunkSize;
+    //    indexX -= 1;
+    //  }
+    //  leftLowerMostTerrain = leftLowerMostTerrain.leftNeighbor;
+    //}
+    //while (true) {
+    //  if (leftLowerMostTerrain.bottomNeighbor is null) break;
+    //  leftLowerMostTerrain = leftLowerMostTerrain.bottomNeighbor;
+    //}
+
+    //Terrain leftNeighbor = mainTerrain.leftNeighbor;
+    //if (leftNeighbor is null) {
+    //  leftNeighbor = Instantiate<Terrain>(mainTerrain, gameObject.transform);
+    //  leftNeighbor.transform.position = mainTerrain.transform.position - new Vector3(chunkSize, 0, 0);
+    //  leftNeighbor.transform.position = mainTerrain.transform.position - new Vector3(2 * mainTerrain.terrainData.bounds.extents.x, 0, 0);
+    //  leftNeighbor.terrainData.heightmapResolution = chunkSize;
+    //  leftNeighbor.SetNeighbors(null, null, mainTerrain, null);
+    //  mainTerrain.SetNeighbors(leftNeighbor, null, null, null);
+    //}
+    return result;
   }
 
   public void GenerateHeightMap() {
