@@ -84,11 +84,12 @@ public class TerrainGenerator : MonoBehaviour {
         //dummyMap[i, j] *= 10f;
       }
     }
-  
+
     for (int i = 0; i < terrainTiles.GetLength(0); i++) {
       for (int j = 0; j < terrainTiles.GetLength(1); j++) {
-        float[,] tileHeightMap = CreateTileHeightMap(i, j, heightMap);
         Terrain terrainTile = terrainTiles[i, j];
+        float[,] tileHeightMap = CreateTileHeightMap(i, j, heightMap);
+
         terrainTile.terrainData.SetHeights(0, 0, tileHeightMap);
         terrainTile.Flush();
       }
@@ -146,13 +147,12 @@ public class TerrainGenerator : MonoBehaviour {
   }
 
   private float[,] CreateTileHeightMap(int tileX, int tileY, float[,] heightMap) {
-    int startX = tileX * chunkSize;
-    int startY = tileY * chunkSize;
+    int startX = tileX * chunkSize - tileX;
+    int startY = tileY * chunkSize - tileY;
     float[,] result = new float[chunkSize, chunkSize];
     for (int i = 0; i < chunkSize; i++) {
       for (int j = 0; j < chunkSize; j++) {
         result[j, i] = heightMap[startX + i, startY + j];
-        float resultji = result[j, i];
       }
     }
     return result;
