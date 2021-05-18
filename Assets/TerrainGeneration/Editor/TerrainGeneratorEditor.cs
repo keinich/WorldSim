@@ -10,14 +10,12 @@ public class MeshEditor : Editor {
 
     if (DrawDefaultInspector()) {
       if (terrainGenerator.autoUpdate) {
-        terrainGenerator.GenerateHeightMap();
-        terrainGenerator.ConstructTerrain();
+        terrainGenerator.GenerateFromGraph();
       }
     }
 
     if (GUILayout.Button("Generate Mesh")) {
-      terrainGenerator.GenerateHeightMap();
-      terrainGenerator.ConstructTerrain();
+      terrainGenerator.GenerateFromGraph();
     }
 
     if (GUILayout.Button("Show Graph")) {

@@ -16,7 +16,7 @@ public class TerrainGraphEditorWindow : EditorWindow {
   private void OnEnable() {
     ConstructGraphView();
     GenerateToolbar();
-    GenerateMiniMap();
+    //GenerateMiniMap();
     GenerateBlackBoard();
   }
 

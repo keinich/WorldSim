@@ -7,15 +7,12 @@ public class ResultNode : TerrainNode {
   [SerializeField]
   public float heightScale = 500;
 
-  [SerializeField]
-  public int mapSize;
-
   public ResultNode() {
     heightmapInputs.Add(new HeightmapOutputReceiver(this) { name = "Heightmap Input" });
     nodeName = "Result";
   }
 
-  public float[,] GenerateHeightMap() {
+  public float[,] GenerateHeightMap(int mapSize) {
 
     float[,] input = GetInput(mapSize, "Heightmap Input");
     float[,] result = new float[mapSize, mapSize];
